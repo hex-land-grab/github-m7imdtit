@@ -1,190 +1,115 @@
 // FILE: app/api/webhook/route.ts
-//
-// Secure Gumroad webhook handler (Next.js App Router)
-// - Uses Supabase Service Role key (bypasses RLS) to write sales into `sold_colors`
-// - Sanitizes hex codes (ensures leading "#", uppercase, 6-hex chars)
-// - Idempotent on `hex_code` via PK: if duplicate key (23505), returns 200 to stop Gumroad retries
-//
-// Required env vars:
-// - SUPABASE_URL
-// - SUPABASE_SERVICE_ROLE_KEY
-//
-// Notes:
-// - Gumroad sends application/x-www-form-urlencoded by default.
-// - Field names for custom fields often come through as `custom_fields[Hex Code]` etc.
-// - We defensively read multiple possible shapes.
-
 import { NextResponse } from "next/server";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
+import { TwitterApi } from "twitter-api-v2";
 
-export const runtime = "nodejs"; // ensure Node runtime (service role key use)
+export const runtime = "nodejs";
 
-type GumroadPayload = Record<string, string | undefined>;
-
+// --- ENV VAR HELPERS ---
 function getEnv(name: string): string {
   const v = process.env[name];
-  if (!v) throw new Error(`Missing required env var: ${name}`);
+  if (!v) throw new Error(`Missing env var: ${name}`);
   return v;
 }
 
-function initSupabaseServiceClient(): SupabaseClient {
-  const url = getEnv("SUPABASE_URL");
-  const serviceRoleKey = getEnv("SUPABASE_SERVICE_ROLE_KEY");
-  return createClient(url, serviceRoleKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
+// --- INITIALIZE CLIENTS ---
+function initSupabaseAdmin() {
+  return createClient(
+    getEnv("SUPABASE_URL"),
+    getEnv("SUPABASE_SERVICE_ROLE_KEY"),
+    { auth: { persistSession: false } }
+  );
+}
+
+function initTwitterClient() {
+  if (!process.env.TWITTER_API_KEY) return null;
+  return new TwitterApi({
+    appKey: process.env.TWITTER_API_KEY!,
+    appSecret: process.env.TWITTER_API_SECRET!,
+    accessToken: process.env.TWITTER_ACCESS_TOKEN!,
+    accessSecret: process.env.TWITTER_ACCESS_SECRET!,
   });
 }
 
-function isHex6(s: string): boolean {
-  return /^[0-9A-F]{6}$/.test(s);
-}
-
-function normalizeHexCode(input: string): string {
-  // Accept: "ff0000", "#ff0000", " #FF0000 "
+// --- HELPERS ---
+function normalizeHex(input: string): string {
   const raw = input.trim().toUpperCase();
-  const withoutHash = raw.startsWith("#") ? raw.slice(1) : raw;
-
-  // If someone passes 3-digit hex, expand? (Not requested) => reject by throwing.
-  if (!isHex6(withoutHash)) {
-    throw new Error(`Invalid Hex Code: "${input}"`);
-  }
-  return `#${withoutHash}`;
+  const hex = raw.startsWith("#") ? raw : `#${raw}`;
+  if (!/^[#0-9A-F]{7}$/.test(hex)) throw new Error(`Invalid Hex: ${input}`);
+  return hex;
 }
 
-function pickFirst(payload: GumroadPayload, keys: string[]): string | undefined {
+function getField(payload: any, keys: string[]): string | undefined {
   for (const k of keys) {
-    const v = payload[k];
-    if (typeof v === "string" && v.trim() !== "") return v;
+    if (payload[k]) return payload[k];
   }
   return undefined;
 }
 
-function parsePriceToNumber(priceRaw: string): number {
-  // Gumroad may send price in cents or dollars depending on setup; user says "price (Number)".
-  // We will accept:
-  // - "5" => 5
-  // - "5.00" => 5
-  // - "500" => 500
-  // Caller should ensure consistent unit; we store as numeric as-is.
-  const n = Number(priceRaw);
-  if (!Number.isFinite(n)) throw new Error(`Invalid price: "${priceRaw}"`);
-  return n;
-}
-
-async function readFormPayload(req: Request): Promise<GumroadPayload> {
-  const contentType = req.headers.get("content-type") ?? "";
-
-  // Gumroad: application/x-www-form-urlencoded
-  if (contentType.includes("application/x-www-form-urlencoded") || contentType.includes("multipart/form-data")) {
-    const form = await req.formData();
-    const obj: GumroadPayload = {};
-    for (const [k, v] of form.entries()) {
-      // We only care about scalar strings; ignore files
-      if (typeof v === "string") obj[k] = v;
-    }
-    return obj;
-  }
-
-  // Fallback: JSON
-  if (contentType.includes("application/json")) {
-    const json = (await req.json()) as Record<string, unknown>;
-    const obj: GumroadPayload = {};
-    for (const [k, v] of Object.entries(json)) {
-      if (typeof v === "string") obj[k] = v;
-      else if (typeof v === "number") obj[k] = String(v);
-      else if (v == null) obj[k] = undefined;
-    }
-    return obj;
-  }
-
-  // Last resort: try reading as text and parse as URLSearchParams
-  const text = await req.text();
-  const params = new URLSearchParams(text);
-  const obj: GumroadPayload = {};
-  for (const [k, v] of params.entries()) obj[k] = v;
-  return obj;
-}
-
+// --- MAIN HANDLER ---
 export async function POST(req: Request) {
   try {
-    const payload = await readFormPayload(req);
+    // 1. ADATOK BEOLVASÁSA
+    const text = await req.text();
+    const params = new URLSearchParams(text);
+    const payload: Record<string, string> = {};
+    params.forEach((v, k) => (payload[k] = v));
 
-    // Gumroad core fields
-    const saleId = pickFirst(payload, ["sale_id", "saleId", "id"]);
-    const email = pickFirst(payload, ["email", "buyer_email"]);
-    const priceRaw = pickFirst(payload, ["price", "formatted_price", "amount"]);
-    // "full_name" may arrive as a root field, or inside custom_fields
-    const fullName = pickFirst(payload, [
-      "full_name",
-      "fullName",
-      "name",
-      "custom_fields[Full Name]",
-      "custom_fields[full_name]",
-      "custom_fields[Name]",
-    ]);
+    console.log("Webhook received sale:", payload['sale_id']);
 
-    // Custom fields: Hex Code
-    const hexRaw = pickFirst(payload, [
-      "Hex Code",
-      "hex_code",
-      "custom_fields[Hex Code]",
-      "custom_fields[hex_code]",
-      "custom_fields[HEX CODE]",
-      "custom_fields[Hex]",
-    ]);
+    // 2. MEZŐK KIKERESÉSE
+    const saleId = getField(payload, ["sale_id", "saleId", "id"]);
+    const email = getField(payload, ["email"]);
+    const priceRaw = getField(payload, ["price", "amount"]);
+    const fullName = getField(payload, ["full_name", "name", "custom_fields[Full Name]"]) || "Anonymous";
+    const hexRaw = getField(payload, ["custom_fields[Hex Code]", "Hex Code", "custom_fields[Hex]"]);
 
-    if (!saleId) {
-      return NextResponse.json({ ok: false, error: "Missing sale_id" }, { status: 400 });
-    }
-    if (!email) {
-      return NextResponse.json({ ok: false, error: "Missing email" }, { status: 400 });
-    }
-    if (!priceRaw) {
-      return NextResponse.json({ ok: false, error: "Missing price" }, { status: 400 });
-    }
-    if (!hexRaw) {
-      return NextResponse.json({ ok: false, error: "Missing Hex Code" }, { status: 400 });
+    if (!saleId || !email || !priceRaw || !hexRaw) {
+      console.error("Missing fields. HexRaw:", hexRaw);
+      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
-    const hexCode = normalizeHexCode(hexRaw);
-    const purchasePrice = parsePriceToNumber(priceRaw);
+    const hexCode = normalizeHex(hexRaw);
+    const price = parseFloat(priceRaw);
 
-    const supabase = initSupabaseServiceClient();
-
+    // 3. MENTÉS ADATBÁZISBA (Supabase)
+    const supabase = initSupabaseAdmin();
     const { error } = await supabase.from("sold_colors").insert({
       hex_code: hexCode,
-      owner_name: fullName ?? null,
+      owner_name: fullName,
       owner_email: email,
-      purchase_price: purchasePrice,
+      purchase_price: price,
       gumroad_sale_id: saleId,
-      // created_at is server-default in DB or provided by DB trigger; omit here.
     });
 
-    // Duplicate key (hex already sold) => return 200 to prevent Gumroad retries
     if (error) {
-      // Supabase PostgREST errors typically include `code` as a string like "23505"
-      const pgCode = (error as any)?.code;
-      if (pgCode === "23505") {
-        console.warn(`Duplicate purchase attempt for ${hexCode} (sale_id=${saleId})`);
-        return new NextResponse("Sale recorded", { status: 200 });
+      if (error.code === "23505") { // Duplicate key
+        console.log("Already processed:", hexCode);
+        return new NextResponse("Already recorded", { status: 200 });
       }
-
-      console.error("Webhook insert failed:", {
-        message: error.message,
-        code: (error as any)?.code,
-        details: (error as any)?.details,
-        hint: (error as any)?.hint,
-        sale_id: saleId,
-        hex_code: hexCode,
-      });
-
-      // For non-duplicate failures, still return 500 so Gumroad retries (data loss is worse).
-      return NextResponse.json({ ok: false, error: "Insert failed" }, { status: 500 });
+      throw error;
     }
 
-    return new NextResponse("Sale recorded", { status: 200 });
-  } catch (err) {
-    console.error("Webhook handler error:", err);
-    return NextResponse.json({ ok: false, error: "Bad request" }, { status: 400 });
+    // 4. POSZTOLÁS TWITTERRE (X)
+    try {
+      const twitter = initTwitterClient();
+      if (twitter) {
+        // --- ITT A MARKETINGSZÖVEG ---
+        const tweetText = `🎨 NEW COLOR CLAIMED!\n\nThe color ${hexCode} is now officially owned by ${fullName}.\n\nOnly 1 owner per color. Forever.\nGet yours: https://hex-land-grab.vercel.app`;
+        
+        await twitter.v2.tweet(tweetText);
+        console.log("Tweet sent successfully for", hexCode);
+      } else {
+        console.log("Twitter keys missing, skipping tweet.");
+      }
+    } catch (twError) {
+      console.error("Twitter post failed:", twError);
+    }
+
+    return new NextResponse("Success", { status: 200 });
+
+  } catch (err: any) {
+    console.error("Webhook Error:", err);
+    return NextResponse.json({ error: err.message }, { status: 400 });
   }
 }
