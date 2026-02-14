@@ -3,11 +3,10 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { Search, Loader2 } from 'lucide-react'
 
-// --- KONFIGURÁCIÓ ---
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-// VÁLTOZTATÁS: Közvetlenül a checkout oldalra mutatunk!
-const G_LINK = "https://soloflowsystems.gumroad.com/checkout/zlqosf"; 
+// VISSZAÁLLÍTVA: A biztosan létező termék link
+const G_LINK = "https://soloflowsystems.gumroad.com/l/zlqosf"; 
 
 const supabase = createClient(S_URL, S_KEY);
 
@@ -34,20 +33,21 @@ export default function HexLandGrab() {
     if (data) { setStatus('taken'); setOwnerData(data); } else { setStatus('available'); }
   }
 
-  // --- V3: KÖZVETLEN ADATÁTVITEL ---
-  // A paramétereket biztonságosan kódoljuk a böngésző számára
+  // --- V4: A "PROFI" ADATÁTVITEL ---
   const getBuyLink = () => {
-    const params = new URLSearchParams();
-    params.set('custom_fields[Hex]', hex);
-    return `${G_LINK}?${params.toString()}`;
+    // JSON formátumban csomagoljuk be a mezőt, így a Gumroad biztosan megérti
+    const customFields = JSON.stringify({ "Hex": hex });
+    const encodedFields = encodeURIComponent(customFields);
+    
+    // wanted=true kihagyja a terméklapot, és rögtön a fizetéshez visz
+    return `${G_LINK}?wanted=true&custom_fields=${encodedFields}`;
   }
 
   return (
     <div style={{ backgroundColor: '#000', minHeight: '100vh', color: '#fff', fontFamily: 'monospace', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
       
-      {/* Itt a V3 jelzés! */}
       <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '10px', textAlign: 'center' }}>
-        HEX LAND GRAB <span style={{ fontSize: '1rem', color: '#ff00ff' }}>V3</span>
+        HEX LAND GRAB <span style={{ fontSize: '1rem', color: '#ffea00' }}>V4</span>
       </h1>
       <p style={{ color: '#888', marginBottom: '60px' }}>Own a color. Forever. 🎨</p>
 
@@ -90,10 +90,6 @@ export default function HexLandGrab() {
           </div>
         ))}
       </div>
-
-      <footer style={{ marginTop: '50px', fontSize: '10px', color: '#333' }}>
-        <a href="/terms" style={{ color: '#333' }}>Terms & Conditions</a>
-      </footer>
     </div>
   )
 }
