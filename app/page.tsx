@@ -61,9 +61,12 @@ export default function HexLandGrab() {
     }
   }
 
-  // --- AZ OKOS LINK GENERÁTOR ---
+// --- A NYERS LINK GENERÁTOR ---
   const getGumroadLink = () => {
-    const params = new URLSearchParams();
+    // KÖZVETLEN SOR: Nem kódoljuk a zárójeleket, nyersen küldjük.
+    // Ez a titok nyitja.
+    return `${GUMROAD_BASE_URL}?wanted=true&custom_fields[Hex]=${hex}`;
+  }
     
     // 1. Kényszerítjük, hogy azonnal a fizetőablak nyíljon meg (ez segít az adatátvitelben)
     params.append('wanted', 'true');
