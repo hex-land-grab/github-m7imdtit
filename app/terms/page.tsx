@@ -2,13 +2,14 @@ import React from "react";
 
 export default function TermsPage() {
   return (
-    <div
+  <div
       style={{
         backgroundColor: "#000",
         color: "#ccc",
-        padding: "40px",
+        padding: "20px 20px 60px 20px", // Több hely alulra
         fontFamily: "sans-serif",
-        lineHeight: "1.6",
+        lineHeight: "1.8", // Lazább sorköz, könnyebb olvasni
+        fontSize: "16px",  // Nagyobb betűk (eddig alapméret volt)
         maxWidth: "800px",
         margin: "0 auto",
       }}
