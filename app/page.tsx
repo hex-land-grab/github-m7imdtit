@@ -123,13 +123,14 @@ export default function HexLandGrab() {
           )}
         </div>
       </div>
-    </div>
-    <footer style={{ marginTop: '50px', padding: '20px', borderTop: '1px solid #333', fontSize: '12px', color: '#666', textAlign: 'center' }}>
+      <footer style={{ marginTop: '50px', padding: '20px', borderTop: '1px solid #333', fontSize: '12px', color: '#666', textAlign: 'center' }}>
         <p>© 2026 Hex Land Grab. Entertainment purposes only.</p>
         <p>
           By using this site, you agree to our 
           <a href="/terms" style={{ color: '#888', textDecoration: 'underline', marginLeft: '5px' }}>Terms & Conditions</a>.
         </p>
       </footer>
+    </div>
+    
   )
 }
