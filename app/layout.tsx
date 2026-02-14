@@ -1,3 +1,4 @@
+<script src="https://gumroad.com/js/gumroad.js"></script>
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
