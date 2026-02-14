@@ -6,8 +6,7 @@ import { Search, Loader2, ExternalLink } from 'lucide-react'
 // --- KONFIGURÁCIÓ (Itt cseréld le a saját URL-edre!) ---
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const GUMROAD_LINK = "https://hexcolor.gumroad.com/l/YOUR_PRODUCT_LINK"; // <--- Ezt majd cseréld ki a sajátodra!
-
+const GUMROAD_LINK = "https://soloflowsystems.gumroad.com/l/zlqosf";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default function HexLandGrab() {
