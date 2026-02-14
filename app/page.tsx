@@ -1,12 +1,14 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { Search, Loader2, ExternalLink } from 'lucide-react'
+import { Search, Loader2 } from 'lucide-react'
 
-// --- KONFIGURÁCIÓ (Itt cseréld le a saját URL-edre!) ---
+// --- KONFIGURÁCIÓ ---
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const GUMROAD_LINK = "https://soloflowsystems.gumroad.com/l/zlqosf";
+// A te Gumroad linked
+const GUMROAD_BASE_URL = "https://soloflowsystems.gumroad.com/l/zlqosf"; 
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export default function HexLandGrab() {
@@ -15,12 +17,10 @@ export default function HexLandGrab() {
   const [ownerData, setOwnerData] = useState<any>(null)
   const [recentSales, setRecentSales] = useState<any[]>([])
 
-  // Betöltéskor lekéri a legutóbbi eladásokat
   useEffect(() => {
     fetchRecentSales()
   }, [])
 
-  // Ez a függvény javítja a DUPLA HASHTAG hibát
   const formatHex = (code: string) => {
     const clean = code.replace(/#/g, '').toUpperCase();
     return `#${clean}`;
@@ -30,18 +30,15 @@ export default function HexLandGrab() {
     const { data } = await supabase
       .from('sold_colors')
       .select('*')
-      .order('purchase_price', { ascending: false }) // Vagy 'created_at' ha van olyan oszlopod
+      .order('purchase_price', { ascending: false })
       .limit(5)
-    
     if (data) setRecentSales(data)
   }
 
   async function checkColor(inputHex: string) {
-    // 1. Tisztítás: csak 0-9 és A-F karakterek maradhatnak
     const cleanHex = inputHex.replace(/[^0-9A-F]/gi, '').toUpperCase().slice(0, 6)
     setHex(cleanHex)
 
-    // 2. Ha nincs kész a 6 karakter, akkor 'idle'
     if (cleanHex.length !== 6) {
       setStatus('idle')
       return
@@ -49,10 +46,7 @@ export default function HexLandGrab() {
 
     setStatus('checking')
 
-    // 3. Ellenőrzés az adatbázisban
-    // Fontos: A DB-ben lehet, hogy '#' jellel van tárolva, lehet, hogy anélkül.
-    // Itt mindkettőt megpróbáljuk lekérdezni a biztonság kedvéért.
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('sold_colors')
       .select('*')
       .or(`hex_code.eq.${cleanHex},hex_code.eq.#${cleanHex}`)
@@ -67,10 +61,25 @@ export default function HexLandGrab() {
     }
   }
 
+  // --- AZ OKOS LINK GENERÁTOR ---
+  const getGumroadLink = () => {
+    const params = new URLSearchParams();
+    
+    // 1. Kényszerítjük, hogy azonnal a fizetőablak nyíljon meg (ez segít az adatátvitelben)
+    params.append('wanted', 'true');
+    
+    // 2. "Sörétes puska" módszer: Minden lehetséges néven elküldjük a kódot
+    // Ha a mező neve "Hex", ez kapja el:
+    params.append('custom_fields[Hex]', hex);
+    // Ha a mező neve "Hex Code", ez kapja el (biztonsági tartalék):
+    params.append('custom_fields[Hex Code]', hex);
+    
+    return `${GUMROAD_BASE_URL}?${params.toString()}`;
+  }
+
   return (
     <div style={{ backgroundColor: '#000', minHeight: '100vh', color: '#fff', fontFamily: 'monospace', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
       
-      {/* --- HERO SECTION --- */}
       <h1 style={{ fontSize: '4rem', fontWeight: 'bold', marginBottom: '10px', letterSpacing: '-2px', textAlign: 'center' }}>
         HEX LAND GRAB
       </h1>
@@ -78,7 +87,6 @@ export default function HexLandGrab() {
         Own a color. Forever. 🎨
       </p>
 
-      {/* --- KERESŐ DOBOZ --- */}
       <div style={{ 
         backgroundColor: '#111', 
         padding: '30px', 
@@ -94,7 +102,7 @@ export default function HexLandGrab() {
             type="text" 
             value={hex}
             onChange={(e) => checkColor(e.target.value)}
-            placeholder="Type 6 chars (e.g. FF0000)..."
+            placeholder="TYPE 6 CHARS (E.G. FF0000)..."
             style={{ 
               width: '100%', 
               backgroundColor: '#000', 
@@ -110,7 +118,6 @@ export default function HexLandGrab() {
           />
         </div>
 
-        {/* --- STÁTUSZ KIJELZŐ (A "Smart" rész) --- */}
         <div style={{ minHeight: '60px', textAlign: 'center' }}>
           
           {status === 'checking' && (
@@ -125,19 +132,20 @@ export default function HexLandGrab() {
                 ✅ #{hex} IS AVAILABLE!
               </p>
               <a 
-               href={`${GUMROAD_LINK}?custom_fields[Hex]=${hex}`} // Automatikusan kitölti a kódot Gumroadon!
+                href={getGumroadLink()} // Itt hívjuk meg az okos linket
                 target="_blank"
                 rel="noreferrer"
                 style={{ 
-                  backgroundColor: `#${hex}`, // A gomb színe maga a választott szín!
-                  color: parseInt(hex, 16) > 0xffffff / 2 ? '#000' : '#fff', // Sötét színhez világos betű, és fordítva
+                  backgroundColor: `#${hex}`, 
+                  color: parseInt(hex, 16) > 0xffffff / 2 ? '#000' : '#fff',
                   padding: '15px 30px', 
                   borderRadius: '10px', 
                   textDecoration: 'none', 
                   fontWeight: 'bold',
                   display: 'inline-block',
                   border: '2px solid #fff',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  fontSize: '18px'
                 }}
               >
                 CLAIM NOW FOR $5
@@ -158,7 +166,6 @@ export default function HexLandGrab() {
         </div>
       </div>
 
-      {/* --- SOCIAL PROOF (RECENT SALES) --- */}
       <div style={{ marginTop: '80px', width: '100%', maxWidth: '600px' }}>
         <h3 style={{ color: '#444', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '20px', textAlign: 'center' }}>
           Recent Claims
@@ -176,7 +183,6 @@ export default function HexLandGrab() {
               border: '1px solid #222'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                {/* A kis színes négyzet */}
                 <div style={{ 
                   width: '40px', 
                   height: '40px', 
@@ -184,28 +190,23 @@ export default function HexLandGrab() {
                   borderRadius: '6px',
                   boxShadow: '0 0 10px rgba(0,0,0,0.5)' 
                 }}></div>
-                
                 <div>
-                  {/* Itt javítottuk a dupla hashtaget a formatHex függvénnyel */}
                   <div style={{ fontWeight: 'bold', fontSize: '18px' }}>{formatHex(sale.hex_code)}</div>
                   <div style={{ fontSize: '12px', color: '#666' }}>Claimed via Gumroad</div>
                 </div>
               </div>
-              
               <div style={{ textAlign: 'right' }}>
                 <div style={{ color: '#888' }}>{sale.owner_name || 'Anonymous'}</div>
                 <div style={{ color: '#444', fontSize: '12px' }}>${sale.purchase_price}</div>
               </div>
             </div>
           ))}
-
           {recentSales.length === 0 && (
             <p style={{ textAlign: 'center', color: '#333' }}>No colors claimed yet. Be the first!</p>
           )}
         </div>
       </div>
 
-      {/* --- FOOTER (Angolul) --- */}
       <footer style={{ marginTop: '100px', padding: '20px', borderTop: '1px solid #222', fontSize: '12px', color: '#555', textAlign: 'center', width: '100%' }}>
         <p>© 2026 Hex Land Grab. Entertainment purposes only.</p>
         <p>
@@ -213,7 +214,6 @@ export default function HexLandGrab() {
           <a href="/terms" style={{ color: '#777', textDecoration: 'underline', marginLeft: '5px' }}>Terms & Conditions</a>.
         </p>
       </footer>
-
     </div>
   )
 }
