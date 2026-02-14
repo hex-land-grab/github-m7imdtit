@@ -5,7 +5,6 @@ import { Search, Loader2 } from 'lucide-react'
 
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-// Az alap termék link (az overlay-hez kell)
 const G_LINK = "https://soloflowsystems.gumroad.com/l/zlqosf"; 
 
 const supabase = createClient(S_URL, S_KEY);
@@ -16,12 +15,6 @@ export default function HexLandGrab() {
   const [recentSales, setRecentSales] = useState<any[]>([])
 
   useEffect(() => {
-    // Gumroad script betöltése dinamikusan
-    const script = document.createElement('script');
-    script.src = "https://gumroad.com/js/gumroad.js";
-    script.async = true;
-    document.body.appendChild(script);
-
     const fetchSales = async () => {
       const { data } = await supabase.from('sold_colors').select('*').order('purchase_price', { ascending: false }).limit(5);
       if (data) setRecentSales(data);
@@ -49,19 +42,22 @@ export default function HexLandGrab() {
         <input 
           type="text" value={hex} onChange={(e) => checkColor(e.target.value)}
           placeholder="TYPE 6 CHARS..."
-          style={{ width: '100%', backgroundColor: '#000', border: '1px solid #333', padding: '20px', fontSize: '24px', color: '#fff', borderRadius: '12px', textAlign: 'center' }} 
+          style={{ width: '100%', backgroundColor: '#000', border: '1px solid #333', padding: '20px', fontSize: '24px', color: '#fff', borderRadius: '12px', textAlign: 'center', outline: 'none' }} 
         />
 
-        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+        <div style={{ minHeight: '100px', marginTop: '20px', textAlign: 'center' }}>
+          {status === 'checking' && <Loader2 className="animate-spin" style={{ margin: '0 auto' }} />}
+          
           {status === 'available' && hex.length === 6 && (
             <div className="animate-in fade-in">
-              <p style={{ color: '#4ade80', marginBottom: '15px' }}>✅ #{hex} READY FOR CLAIM</p>
-              
-              {/* Ez a gomb aktiválja az Overlay-t és küldi el az adatot automatikusan */}
+              <p style={{ color: '#4ade80', marginBottom: '15px' }}>✅ #{hex} READY</p>
+              {/* Ez a speciális gomb hívja be az Overlay-t */}
               <a 
                 className="gumroad-button"
                 href={`${G_LINK}?custom_fields[Hex]=${hex}&wanted=true`}
                 data-gumroad-single-product="true"
+                target="_blank"
+                rel="noreferrer"
                 style={{ 
                   backgroundColor: `#${hex}`, 
                   color: parseInt(hex, 16) > 0xffffff / 2 ? '#000' : '#fff',
@@ -73,10 +69,11 @@ export default function HexLandGrab() {
                   border: '2px solid #fff' 
                 }}
               >
-                BUY NOW
+                CLAIM NOW
               </a>
             </div>
           )}
+          {status === 'taken' && <p style={{ color: '#ef4444' }}>🚫 ALREADY OWNED</p>}
         </div>
       </div>
     </div>
