@@ -125,7 +125,7 @@ export default function HexLandGrab() {
                 ✅ #{hex} IS AVAILABLE!
               </p>
               <a 
-                href={`${GUMROAD_LINK}?custom_fields[Hex Code]=${hex}`} // Automatikusan kitölti a kódot Gumroadon!
+                href={`${GUMROAD_LINK}?custom_fields[Hex%20Code]=${hex}`} // Automatikusan kitölti a kódot Gumroadon!
                 target="_blank"
                 rel="noreferrer"
                 style={{ 
