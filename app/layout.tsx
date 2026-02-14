@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} bg-black text-white`}>
         {children}
-        {/* Hivatalos Gumroad Overlay Script - Stratégia: Interakció után azonnal */}
+        {/* Hivatalos Gumroad Overlay Script a body végén */}
         <Script 
           src="https://gumroad.com/js/gumroad.js" 
           strategy="afterInteractive" 
