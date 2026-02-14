@@ -6,7 +6,8 @@ import { Search, Loader2 } from 'lucide-react'
 // --- KONFIGURÁCIÓ ---
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const G_LINK = "https://soloflowsystems.gumroad.com/l/zlqosf"; 
+// VÁLTOZTATÁS: Közvetlenül a checkout oldalra mutatunk!
+const G_LINK = "https://soloflowsystems.gumroad.com/checkout/zlqosf"; 
 
 const supabase = createClient(S_URL, S_KEY);
 
@@ -33,14 +34,20 @@ export default function HexLandGrab() {
     if (data) { setStatus('taken'); setOwnerData(data); } else { setStatus('available'); }
   }
 
-  // --- A MEGOLDÁS: KÉZZEL ÖSSZERAKOTT LINK ---
-  const buyLink = `${G_LINK}?custom_fields[Hex]=${hex}`;
+  // --- V3: KÖZVETLEN ADATÁTVITEL ---
+  // A paramétereket biztonságosan kódoljuk a böngésző számára
+  const getBuyLink = () => {
+    const params = new URLSearchParams();
+    params.set('custom_fields[Hex]', hex);
+    return `${G_LINK}?${params.toString()}`;
+  }
 
   return (
     <div style={{ backgroundColor: '#000', minHeight: '100vh', color: '#fff', fontFamily: 'monospace', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
       
+      {/* Itt a V3 jelzés! */}
       <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '10px', textAlign: 'center' }}>
-        HEX LAND GRAB <span style={{ fontSize: '1rem', color: '#333' }}>V2</span>
+        HEX LAND GRAB <span style={{ fontSize: '1rem', color: '#ff00ff' }}>V3</span>
       </h1>
       <p style={{ color: '#888', marginBottom: '60px' }}>Own a color. Forever. 🎨</p>
 
@@ -59,7 +66,7 @@ export default function HexLandGrab() {
           {status === 'available' && hex.length === 6 && (
             <div>
               <p style={{ color: '#4ade80', marginBottom: '15px' }}>✅ #{hex} IS AVAILABLE!</p>
-              <a href={buyLink} target="_blank" rel="noreferrer"
+              <a href={getBuyLink()} target="_blank" rel="noreferrer"
                 style={{ backgroundColor: `#${hex}`, color: parseInt(hex, 16) > 0xffffff / 2 ? '#000' : '#fff', padding: '15px 30px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', display: 'inline-block', border: '2px solid #fff' }}>
                 CLAIM NOW FOR $5
               </a>
