@@ -6,8 +6,8 @@ import { Search, Loader2 } from 'lucide-react'
 // --- KONFIGURÁCIÓ ---
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-// A te Gumroad linked
-const GUMROAD_BASE_URL = "https://soloflowsystems.gumroad.com/l/zlqosf"; 
+// Fontos: Itt a saját linked van
+const GUMROAD_LINK = "https://soloflowsystems.gumroad.com/l/zlqosf"; 
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -61,23 +61,12 @@ export default function HexLandGrab() {
     }
   }
 
-// --- A NYERS LINK GENERÁTOR ---
+  // --- A NYERS LINK GENERÁTOR (A javított verzió) ---
   const getGumroadLink = () => {
-    // KÖZVETLEN SOR: Nem kódoljuk a zárójeleket, nyersen küldjük.
-    // Ez a titok nyitja.
-    return `${GUMROAD_BASE_URL}?wanted=true&custom_fields[Hex]=${hex}`;
-  }
-    
-    // 1. Kényszerítjük, hogy azonnal a fizetőablak nyíljon meg (ez segít az adatátvitelben)
-    params.append('wanted', 'true');
-    
-    // 2. "Sörétes puska" módszer: Minden lehetséges néven elküldjük a kódot
-    // Ha a mező neve "Hex", ez kapja el:
-    params.append('custom_fields[Hex]', hex);
-    // Ha a mező neve "Hex Code", ez kapja el (biztonsági tartalék):
-    params.append('custom_fields[Hex Code]', hex);
-    
-    return `${GUMROAD_BASE_URL}?${params.toString()}`;
+    // Ez a "shotgun" módszer: mindkét lehetséges mezőnevet elküldjük neki nyersen.
+    // Így ha "Hex", ha "Hex Code" a neve, el fogja kapni.
+    // A wanted=true pedig azonnal a fizetést hozza be.
+    return `${GUMROAD_LINK}?wanted=true&custom_fields[Hex]=${hex}&custom_fields[Hex Code]=${hex}`;
   }
 
   return (
@@ -135,7 +124,7 @@ export default function HexLandGrab() {
                 ✅ #{hex} IS AVAILABLE!
               </p>
               <a 
-                href={getGumroadLink()} // Itt hívjuk meg az okos linket
+                href={getGumroadLink()} 
                 target="_blank"
                 rel="noreferrer"
                 style={{ 
