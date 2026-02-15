@@ -23,7 +23,6 @@ export default function HexLandGrab() {
   }, []);
 
   async function checkColor(val: string) {
-    // 1. Tisztítás: csak a karakterek maradjanak
     const clean = val.replace(/[^0-9A-F]/gi, '').toUpperCase().slice(0, 6);
     setHex(clean);
 
@@ -31,28 +30,27 @@ export default function HexLandGrab() {
 
     setStatus('checking');
     
-    // 2. Normalizált keresés: MINDIG keresünk a # jellel, mert az SQL-ben így tettük rendbe
     const normalizedHex = `#${clean}`;
     const { data } = await supabase.from('sold_colors').select('*').eq('hex_code', normalizedHex).single();
 
     if (data) { setStatus('taken'); } else { setStatus('available'); }
   }
 
-  // 3. Biztonságos Gumroad link összeállítása (Overlay nélkül)
   const getGumroadUrl = () => {
-    // A legfrissebb diagnózis alapján: nincs custom_fields[], csak direkt SelectedHex
     const baseUrl = "https://soloflowsystems.gumroad.com/l/zlqosf";
     const params = new URLSearchParams({
       wanted: "true",
-      SelectedHex: hex.replace('#', '').toUpperCase() // Biztosítjuk a tiszta 6 karaktert
+      SelectedHex: hex.replace('#', '').toUpperCase()
     });
     
     return `${baseUrl}?${params.toString()}`;
   }
+
+  return (
     <div style={{ backgroundColor: '#000', minHeight: '100vh', color: '#fff', fontFamily: 'monospace', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
       
       <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '10px', textAlign: 'center' }}>
-        HEX LAND GRAB <span style={{ fontSize: '1rem', color: '#ff00ff' }}>FINAL</span>
+        HEX LAND GRAB <span style={{ fontSize: '1rem', color: '#ff00ff' }}>V8 - FIXED</span>
       </h1>
       
       <div style={{ backgroundColor: '#111', padding: '30px', borderRadius: '20px', border: '1px solid #333', width: '100%', maxWidth: '500px' }}>
@@ -90,6 +88,19 @@ export default function HexLandGrab() {
           )}
           {status === 'taken' && <p style={{ color: '#ef4444' }}>🚫 ALREADY OWNED</p>}
         </div>
+      </div>
+
+      <div style={{ marginTop: '50px', width: '100%', maxWidth: '600px' }}>
+        <h3 style={{ color: '#444', fontSize: '12px', textAlign: 'center', marginBottom: '20px' }}>RECENT CLAIMS</h3>
+        {recentSales.map((sale) => (
+          <div key={sale.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', borderBottom: '1px solid #111' }}>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <div style={{ width: '20px', height: '20px', backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}` }}></div>
+              <span>{sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}</span>
+            </div>
+            <span style={{ color: '#444' }}>{sale.owner_name || 'Anonymous'}</span>
+          </div>
+        ))}
       </div>
     </div>
   )
