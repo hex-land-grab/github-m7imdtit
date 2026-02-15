@@ -14,8 +14,13 @@ export async function POST(req: Request) {
 
     // 1. ADATKINYERÉS: Az új "Hex" mezőt keressük
     // A Gumroad több formátumban is küldheti a custom fieldet
-    let hexRaw = (payload['custom_fields[Hex]'] || payload['Hex'] || '').toString().trim();
-
+    // Az új diagnózis alapján a kulcs most már SelectedHex
+    let hexRaw = (
+      payload['SelectedHex'] || 
+      payload['custom_fields[SelectedHex]'] || 
+      payload['Hex'] || 
+      ''
+    ).toString().trim();
     if (!hexRaw) {
       console.error('Nincs Hex kód a payloadban.');
       return NextResponse.json({ error: 'Missing Hex code' }, { status: 400 });
@@ -60,3 +65,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
