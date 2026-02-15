@@ -40,11 +40,15 @@ export default function HexLandGrab() {
 
   // 3. Biztonságos Gumroad link összeállítása (Overlay nélkül)
   const getGumroadUrl = () => {
-    const prefillKey = "custom_fields%5BHex%5D"; // URL-encoded "custom_fields[Hex]"
-    return `${G_LINK}?wanted=true&${prefillKey}=${hex}`;
+    // A legfrissebb diagnózis alapján: nincs custom_fields[], csak direkt SelectedHex
+    const baseUrl = "https://soloflowsystems.gumroad.com/l/zlqosf";
+    const params = new URLSearchParams({
+      wanted: "true",
+      SelectedHex: hex.replace('#', '').toUpperCase() // Biztosítjuk a tiszta 6 karaktert
+    });
+    
+    return `${baseUrl}?${params.toString()}`;
   }
-
-  return (
     <div style={{ backgroundColor: '#000', minHeight: '100vh', color: '#fff', fontFamily: 'monospace', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
       
       <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '10px', textAlign: 'center' }}>
