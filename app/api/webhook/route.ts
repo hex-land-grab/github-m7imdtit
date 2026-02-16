@@ -7,7 +7,6 @@ const supabase = createClient(S_URL, S_KEY);
 
 export async function POST(req: Request) {
   try {
-    // Rugalmas adatkinyerés: megpróbáljuk JSON-ként, ha nem megy, akkor FormData-ként
     let payload: any;
     const contentType = req.headers.get('content-type') || '';
     
@@ -20,7 +19,7 @@ export async function POST(req: Request) {
 
     console.log('Gumroad Webhook Payload:', payload);
 
-    // 1. ADATKINYERÉS: Az új SelectedHex kulcsot keressük elsődlegesen
+    // 1. HEX KINYERÉSE
     let hexRaw = (
       payload['SelectedHex'] || 
       payload['custom_fields[SelectedHex]'] || 
@@ -28,38 +27,45 @@ export async function POST(req: Request) {
       ''
     ).toString().trim();
 
+    // 2. NÉV KINYERÉSE (Biztonságos!)
+    // Megkeressük a Nickname mezőt. Ha nincs, akkor "Anonymous"-t mentünk.
+    // SOHA ne mentsük az emailt publikus névként!
+    let ownerName = (
+        payload['Nickname'] || 
+        payload['custom_fields[Nickname]'] || 
+        'Anonymous'
+    ).toString().trim();
+
+    // Ha véletlenül üres lenne, legyen Anonymous
+    if (ownerName === '') ownerName = 'Anonymous';
+
     if (!hexRaw) {
-      console.error('Nincs Hex kód a payloadban.');
-      // 200-at küldünk vissza, hogy a Gumroad ne próbálkozzon újra hibás adattal
       return NextResponse.json({ error: 'Missing Hex code' }, { status: 200 });
     }
 
-    // 2. NORMALIZÁLÁS: Kényszerítjük a #RRGGBB formátumot
+    // 3. NORMALIZÁLÁS
     let hexNormalized = hexRaw.toUpperCase();
     if (!hexNormalized.startsWith('#')) {
       hexNormalized = `#${hexNormalized}`;
     }
 
-    // Validálás: # + 6 karakter
     if (hexNormalized.length !== 7) {
-      console.error('Érvénytelen Hex formátum:', hexNormalized);
       return NextResponse.json({ error: 'Invalid Hex format' }, { status: 200 });
     }
 
-    // 3. MENTÉS: Beírás az adatbázisba
+    // 4. MENTÉS
     const { error } = await supabase
       .from('sold_colors')
       .insert([
         { 
           hex_code: hexNormalized, 
-          owner_name: payload.email || 'Anonymous',
+          owner_name: ownerName, // Itt most már a biztonságos Nickname kerül be
           purchase_price: payload.price_usd || 5
         }
       ]);
 
     if (error) {
       if (error.code === '23505') {
-        console.warn('Ez a szín már foglalt:', hexNormalized);
         return NextResponse.json({ status: 'already_owned' }, { status: 200 });
       }
       throw error;
