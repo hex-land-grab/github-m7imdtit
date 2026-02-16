@@ -16,7 +16,8 @@ export default function HexLandGrab() {
 
   useEffect(() => {
     const fetchSales = async () => {
-      const { data } = await supabase.from('sold_colors').select('*').order('created_at', { ascending: false }).limit(24);
+      // 20-ra állítottam a limitet a lista miatt
+      const { data } = await supabase.from('sold_colors').select('*').order('created_at', { ascending: false }).limit(20);
       if (data) setRecentSales(data);
     };
 
@@ -25,7 +26,7 @@ export default function HexLandGrab() {
     const channel = supabase
       .channel('realtime_sales')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sold_colors' }, (payload) => {
-        setRecentSales((prev) => [payload.new, ...prev.slice(0, 23)]);
+        setRecentSales((prev) => [payload.new, ...prev.slice(0, 19)]);
       })
       .subscribe();
 
@@ -60,6 +61,13 @@ export default function HexLandGrab() {
     window.open(url, '_blank');
   }
 
+  // Segédfüggvény a dátum formázásához
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
   return (
     <div style={{ 
       background: 'radial-gradient(circle at 50% -20%, #111827, #000000)', 
@@ -80,7 +88,7 @@ export default function HexLandGrab() {
           color: '#e2e8f0', padding: '6px 16px', borderRadius: '20px', marginBottom: '24px', 
           fontSize: '13px', fontWeight: '500', backdropFilter: 'blur(5px)'
         }}>
-          <Zap size={14} fill="#fbbf24" color="#fbbf24" /> V13: Final Design
+          <Zap size={14} fill="#fbbf24" color="#fbbf24" /> V14: Ownership Ledger
         </div>
         
         <h1 style={{ 
@@ -93,15 +101,14 @@ export default function HexLandGrab() {
         }}>
           HEX LAND GRAB
         </h1>
-        {/* JAVÍTVA: Csak a lényeg, vicces szöveg nélkül */}
         <p style={{ fontSize: '1.25rem', color: '#cbd5e1', maxWidth: '580px', margin: '0 auto', lineHeight: '1.6' }}>
           Own a color. <span style={{ color: '#fff', borderBottom: '2px solid #fff' }}>Forever.</span>
         </p>
       </div>
       
-      {/* MAIN CARD - MOST MÁR SZÜRKE */}
+      {/* MAIN CARD */}
       <div style={{ 
-        backgroundColor: '#1f2937', // <--- ITT A SZÜRKE HÁTTÉR (Gray 800)
+        backgroundColor: '#1f2937', 
         border: '1px solid rgba(255, 255, 255, 0.1)', 
         padding: '40px', 
         borderRadius: '32px', 
@@ -118,7 +125,7 @@ export default function HexLandGrab() {
             placeholder="Search Hex (e.g. FF0055)"
             style={{ 
               width: '100%', 
-              backgroundColor: '#111827', // A beviteli mező sötétebb, hogy legyen kontraszt
+              backgroundColor: '#111827', 
               border: `2px solid ${status === 'available' ? '#4ade80' : '#374151'}`, 
               padding: '20px 20px 20px 64px', 
               fontSize: '24px', 
@@ -225,44 +232,60 @@ export default function HexLandGrab() {
         </div>
       </div>
 
-      <div style={{ marginTop: '100px', width: '100%', maxWidth: '1200px', marginBottom: '60px' }}>
+      {/* NEW LIST VIEW SECTION */}
+      <div style={{ marginTop: '100px', width: '100%', maxWidth: '700px', marginBottom: '60px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px' }}>
-          <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>RECENTLY CAPTURED</h3>
+          <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>OWNERSHIP LEDGER</h3>
           <span style={{ color: '#94a3b8', fontSize: '14px', fontFamily: 'monospace' }}>● LIVE FEED</span>
         </div>
         
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', 
-          gap: '20px' 
-        }}>
+        {/* LIST CONTAINER */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {recentSales.map((sale) => (
-            <div key={sale.id} className="group" style={{ position: 'relative' }}>
-              <div style={{ 
-                aspectRatio: '1/1', 
-                backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`, 
-                borderRadius: '20px',
-                cursor: 'default',
-                display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-                padding: '10px',
-                border: '1px solid rgba(255,255,255,0.1)',
-                transition: 'transform 0.2s'
-              }}
-              >
+            <div key={sale.id} className="group" style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              backgroundColor: '#1f2937', 
+              padding: '16px', 
+              borderRadius: '16px', 
+              border: '1px solid rgba(255,255,255,0.05)',
+              transition: 'transform 0.2s, background-color 0.2s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = '#2d3748';
+              e.currentTarget.style.transform = 'scale(1.01)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = '#1f2937';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                {/* COLOR BOX */}
                 <div style={{ 
-                  backgroundColor: 'rgba(0,0,0,0.7)', 
-                  backdropFilter: 'blur(4px)',
-                  padding: '6px 12px', 
-                  borderRadius: '10px',
-                  color: '#fff', 
-                  fontSize: '12px', 
-                  fontWeight: 'bold',
-                  fontFamily: 'monospace',
+                  width: '50px', 
+                  height: '50px', 
+                  backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`, 
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
                   border: '1px solid rgba(255,255,255,0.1)'
-                }}>
-                  {sale.hex_code}
+                }}></div>
+                
+                {/* INFO */}
+                <div>
+                  <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '18px', fontFamily: 'monospace', letterSpacing: '1px' }}>
+                    {sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}
+                  </div>
+                  <div style={{ color: '#9ca3af', fontSize: '13px' }}>
+                    Owned by <span style={{ color: '#e2e8f0', fontWeight: '600' }}>{sale.owner_name || 'Anonymous'}</span>
+                  </div>
                 </div>
+              </div>
+
+              {/* DATE */}
+              <div style={{ color: '#6b7280', fontSize: '12px', textAlign: 'right', fontWeight: '500' }}>
+                {formatDate(sale.created_at)}
               </div>
             </div>
           ))}
