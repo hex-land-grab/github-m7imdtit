@@ -49,7 +49,10 @@ export default function HexLandGrab() {
 
   const getGumroadUrl = () => {
     const params = new URLSearchParams({
-      wanted: "true", 
+      // TÖRÖLTÜK A "wanted: true" sort!
+      // wanted: "true",  <-- Ez volt a gyorsvásárlás, most kivettük.
+      
+      // A Hex kód továbbra is átmegy, ez nagyon fontos!
       SelectedHex: hex.replace('#', '').toUpperCase()
     });
     return `${G_LINK}?${params.toString()}`;
