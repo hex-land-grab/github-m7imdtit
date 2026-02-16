@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { Search, Loader2, Twitter, ExternalLink, Zap, ShieldCheck } from 'lucide-react'
+import { Search, Loader2, Twitter, ExternalLink, Zap, Shield } from 'lucide-react'
 
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -16,7 +16,7 @@ export default function HexLandGrab() {
 
   useEffect(() => {
     const fetchSales = async () => {
-      const { data } = await supabase.from('sold_colors').select('*').order('created_at', { ascending: false }).limit(18);
+      const { data } = await supabase.from('sold_colors').select('*').order('created_at', { ascending: false }).limit(24);
       if (data) setRecentSales(data);
     };
 
@@ -25,7 +25,7 @@ export default function HexLandGrab() {
     const channel = supabase
       .channel('realtime_sales')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sold_colors' }, (payload) => {
-        setRecentSales((prev) => [payload.new, ...prev.slice(0, 17)]);
+        setRecentSales((prev) => [payload.new, ...prev.slice(0, 23)]);
       })
       .subscribe();
 
@@ -48,7 +48,7 @@ export default function HexLandGrab() {
 
   const getGumroadUrl = () => {
     const params = new URLSearchParams({
-      wanted: "true", // VISSZATETTÜK: Gyors checkout, overlay mód
+      wanted: "true", // VISSZA: Gyors vásárlás
       SelectedHex: hex.replace('#', '').toUpperCase()
     });
     return `${G_LINK}?${params.toString()}`;
@@ -62,200 +62,212 @@ export default function HexLandGrab() {
 
   return (
     <div style={{ 
-      backgroundColor: '#f8fafc', // Light Mode háttér
+      // MÉLY HÁTTÉR: Fekete, de egy kis kék fénnyel a tetején (Spotlight effect)
+      background: 'radial-gradient(circle at 50% -20%, #1e293b, #000000)', 
       minHeight: '100vh', 
-      color: '#0f172a', 
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+      color: '#fff', 
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       display: 'flex', 
       flexDirection: 'column', 
       alignItems: 'center', 
       padding: '60px 20px',
-      position: 'relative' // A footer pozícionálásához
     }}>
       
-      {/* HEADER SECTION */}
-      <div style={{ textAlign: 'center', marginBottom: '60px', maxWidth: '800px' }}>
+      {/* HEADER */}
+      <div style={{ textAlign: 'center', marginBottom: '50px', maxWidth: '800px', zIndex: 10 }}>
         <div style={{ 
           display: 'inline-flex', alignItems: 'center', gap: '8px', 
-          backgroundColor: '#e0f2fe', color: '#0284c7', 
-          padding: '6px 16px', borderRadius: '20px', marginBottom: '24px', 
-          fontSize: '13px', fontWeight: '600' 
+          backgroundColor: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
+          color: '#e2e8f0', padding: '6px 16px', borderRadius: '20px', marginBottom: '24px', 
+          fontSize: '13px', fontWeight: '500', backdropFilter: 'blur(5px)'
         }}>
-          <Zap size={14} fill="currentColor" /> V11: Live Ownership Feed
+          <Zap size={14} fill="#fbbf24" color="#fbbf24" /> V12: High Contrast Dark Mode
         </div>
         
         <h1 style={{ 
-          fontSize: '4rem', 
+          fontSize: '4.5rem', 
           fontWeight: '900', 
           marginBottom: '20px', 
-          letterSpacing: '-0.03em',
+          letterSpacing: '-2px',
           lineHeight: '1',
-          color: '#1e293b'
+          textShadow: '0 0 40px rgba(255,255,255,0.2)' // Ragyogás a cím körül
         }}>
-          Hex Land Grab
+          HEX LAND GRAB
         </h1>
-        <p style={{ fontSize: '1.25rem', color: '#64748b', maxWidth: '580px', margin: '0 auto', lineHeight: '1.6' }}>
-          The internet has 16,777,216 colors. <br/>
-          We sell them once. To one person. <strong style={{ color: '#0f172a' }}>Forever.</strong>
+        <p style={{ fontSize: '1.25rem', color: '#cbd5e1', maxWidth: '580px', margin: '0 auto', lineHeight: '1.6' }}>
+          Own a color. <span style={{ color: '#fff', borderBottom: '2px solid #fff' }}>Forever.</span><br/>
+          Verified on the blockchain of... well, Supabase.
         </p>
       </div>
       
-      {/* MAIN CARD - LIGHT & CLEAN */}
+      {/* MAIN CARD - NEON GLASS */}
       <div style={{ 
-        backgroundColor: '#ffffff',
-        border: '1px solid #e2e8f0',
+        backgroundColor: 'rgba(20, 20, 20, 0.6)', // Sötét, de áttetsző
+        backdropFilter: 'blur(20px)', // Üveghatás
+        border: '1px solid rgba(255, 255, 255, 0.15)', // Vékony világos keret
         padding: '40px', 
-        borderRadius: '24px', 
+        borderRadius: '32px', 
         width: '100%', 
-        maxWidth: '520px', 
-        boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.08)' 
+        maxWidth: '550px', 
+        boxShadow: '0 0 80px rgba(0,0,0,0.8)', // Erős árnyék a kiemeléshez
+        position: 'relative',
+        zIndex: 10
       }}>
         <div style={{ position: 'relative', marginBottom: '30px' }}>
-          <Search style={{ position: 'absolute', left: '20px', top: '22px', color: '#94a3b8', width: '20px', height: '20px' }} />
+          <Search style={{ position: 'absolute', left: '24px', top: '24px', color: '#94a3b8', width: '24px', height: '24px' }} />
           <input 
             type="text" value={hex} onChange={(e) => checkColor(e.target.value)}
             placeholder="Search Hex (e.g. FF0055)"
             style={{ 
               width: '100%', 
-              backgroundColor: '#f1f5f9', 
-              border: `2px solid ${status === 'available' ? '#22c55e' : 'transparent'}`, 
-              padding: '18px 18px 18px 54px', 
-              fontSize: '20px', 
-              color: '#0f172a', 
-              borderRadius: '16px', 
+              backgroundColor: '#000', 
+              border: `2px solid ${status === 'available' ? '#4ade80' : '#333'}`, 
+              padding: '20px 20px 20px 64px', 
+              fontSize: '24px', 
+              color: '#fff', 
+              borderRadius: '20px', 
               outline: 'none',
-              transition: 'all 0.2s ease',
-              fontWeight: '600',
-              fontFamily: 'monospace'
+              transition: 'all 0.3s ease',
+              fontWeight: '700',
+              letterSpacing: '2px',
+              boxShadow: status === 'available' ? '0 0 30px rgba(74, 222, 128, 0.2)' : 'none'
             }} 
           />
         </div>
 
-        <div style={{ minHeight: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           {status === 'idle' && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#64748b', fontSize: '14px' }}>
-              <ShieldCheck size={16} /> Secure Ownership Verification
-            </div>
+            <p style={{ color: '#64748b', fontSize: '15px' }}>Enter 6 characters to check availability.</p>
           )}
           
-          {status === 'checking' && <Loader2 className="animate-spin" style={{ color: '#0f172a' }} />}
+          {status === 'checking' && <Loader2 className="animate-spin" style={{ color: '#fff', width: '32px', height: '32px' }} />}
           
           {status === 'available' && hex.length === 6 && (
             <div className="animate-in fade-in zoom-in duration-300 w-full" style={{ width: '100%' }}>
+              
+              {/* PREVIEW BOX */}
               <div style={{ 
                 width: '100%', 
-                height: '100px', 
+                height: '110px', 
                 backgroundColor: `#${hex}`, 
-                borderRadius: '16px', 
+                borderRadius: '20px', 
                 marginBottom: '24px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
-                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
+                boxShadow: `0 0 50px -10px #${hex}`, // Színes ragyogás
+                border: '2px solid rgba(255,255,255,0.2)'
               }}>
                  <span style={{ 
                    color: parseInt(hex, 16) > 0xffffff / 2 ? '#000' : '#fff', 
-                   fontWeight: '700', 
-                   fontSize: '24px',
-                   fontFamily: 'monospace',
-                   backgroundColor: 'rgba(255,255,255,0.2)',
-                   padding: '4px 12px',
-                   borderRadius: '8px',
-                   backdropFilter: 'blur(4px)'
+                   fontWeight: '900', 
+                   fontSize: '32px',
+                   letterSpacing: '2px',
+                   textShadow: parseInt(hex, 16) > 0xffffff / 2 ? 'none' : '0 2px 10px rgba(0,0,0,0.5)'
                  }}>#{hex}</span>
               </div>
               
+              {/* ACTION BUTTONS */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px' }}>
                 <a 
                   href={getGumroadUrl()}
                   style={{ 
-                    backgroundColor: '#0f172a', 
-                    color: '#fff', 
-                    padding: '16px', 
-                    borderRadius: '14px', 
+                    background: 'linear-gradient(to right, #ffffff, #e2e8f0)', // Fehér gradiens gomb
+                    color: '#000', 
+                    padding: '18px', 
+                    borderRadius: '16px', 
                     textDecoration: 'none', 
-                    fontWeight: '600', 
-                    fontSize: '16px', 
+                    fontWeight: '800', 
+                    fontSize: '18px', 
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center', 
-                    gap: '8px',
-                    transition: 'opacity 0.2s',
+                    gap: '10px',
+                    boxShadow: '0 0 20px rgba(255,255,255,0.3)',
+                    transition: 'transform 0.2s'
                   }}
-                  onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
-                  onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                  Claim Ownership ($5) <ExternalLink size={18}/>
+                  CLAIM NOW ($5) <ExternalLink size={20}/>
                 </a>
                 <button 
                   onClick={shareOnX}
                   style={{ 
-                    backgroundColor: '#f0f9ff', 
-                    border: '1px solid #bae6fd', 
-                    padding: '0 20px', 
-                    borderRadius: '14px', 
+                    backgroundColor: 'rgba(29, 161, 242, 0.2)', 
+                    border: '1px solid #1DA1F2', 
+                    padding: '0 24px', 
+                    borderRadius: '16px', 
                     cursor: 'pointer', 
-                    color: '#0ea5e9',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    color: '#1DA1F2',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'background 0.2s'
                   }}
-                  title="Share on X"
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(29, 161, 242, 0.4)'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(29, 161, 242, 0.2)'}
                 >
-                  <Twitter size={22} />
+                  <Twitter size={24} />
                 </button>
               </div>
+              <p style={{ marginTop: '15px', fontSize: '12px', color: '#64748b', textAlign: 'center' }}>
+                Instant ownership via Gumroad.
+              </p>
             </div>
           )}
 
           {status === 'taken' && (
             <div style={{ 
-              backgroundColor: '#fef2f2', 
-              color: '#ef4444', 
-              padding: '20px', 
-              borderRadius: '16px', 
+              backgroundColor: 'rgba(239, 68, 68, 0.15)', 
+              border: '1px solid #ef4444',
+              color: '#fca5a5', 
+              padding: '24px', 
+              borderRadius: '20px', 
               width: '100%', 
               textAlign: 'center',
-              border: '1px solid #fee2e2'
             }}>
-              <p style={{ fontWeight: '700', fontSize: '18px', marginBottom: '4px' }}>Unavailable</p>
-              <p style={{ fontSize: '14px', color: '#b91c1c' }}>This territory has already been claimed.</p>
+              <p style={{ fontWeight: '800', fontSize: '20px', color: '#fff', marginBottom: '5px' }}>LOCKED 🔒</p>
+              <p style={{ fontSize: '14px' }}>This territory is already occupied.</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* RECENT GRID - LIGHT */}
-      <div style={{ marginTop: '100px', width: '100%', maxWidth: '1000px', marginBottom: '100px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid #e2e8f0', paddingBottom: '20px' }}>
-          <h3 style={{ color: '#0f172a', fontSize: '1.25rem', fontWeight: '700' }}>Recent Claims</h3>
-          <span style={{ color: '#64748b', fontSize: '14px' }}>Live • {recentSales.length} claimed</span>
+      {/* RECENT GRID - DARK & VIBRANT */}
+      <div style={{ marginTop: '100px', width: '100%', maxWidth: '1200px', marginBottom: '60px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px' }}>
+          <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>RECENTLY CAPTURED</h3>
+          <span style={{ color: '#94a3b8', fontSize: '14px', fontFamily: 'monospace' }}>● LIVE FEED</span>
         </div>
         
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', 
-          gap: '16px' 
+          gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', 
+          gap: '20px' 
         }}>
           {recentSales.map((sale) => (
             <div key={sale.id} className="group" style={{ position: 'relative' }}>
               <div style={{ 
                 aspectRatio: '1/1', 
                 backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`, 
-                borderRadius: '16px',
+                borderRadius: '20px',
                 cursor: 'default',
                 display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                padding: '8px',
-                border: '1px solid rgba(0,0,0,0.05)'
-              }}>
+                boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                padding: '10px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                transition: 'transform 0.2s'
+              }}
+              >
                 <div style={{ 
-                  backgroundColor: 'rgba(255,255,255,0.9)', 
-                  padding: '4px 10px', 
-                  borderRadius: '8px',
-                  color: '#0f172a', 
-                  fontSize: '11px', 
-                  fontWeight: '700',
+                  backgroundColor: 'rgba(0,0,0,0.7)', 
+                  backdropFilter: 'blur(4px)',
+                  padding: '6px 12px', 
+                  borderRadius: '10px',
+                  color: '#fff', 
+                  fontSize: '12px', 
+                  fontWeight: 'bold',
                   fontFamily: 'monospace',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  border: '1px solid rgba(255,255,255,0.1)'
                 }}>
                   {sale.hex_code}
                 </div>
@@ -265,22 +277,10 @@ export default function HexLandGrab() {
         </div>
       </div>
 
-      {/* FOOTER - LEGAL LINK */}
-      <div style={{ 
-        width: '100%', 
-        textAlign: 'center', 
-        padding: '40px 0', 
-        borderTop: '1px solid #e2e8f0', 
-        marginTop: 'auto', 
-        color: '#94a3b8', 
-        fontSize: '13px' 
-      }}>
-        <p style={{ marginBottom: '10px' }}>&copy; 2026 Hex Land Grab. All rights reserved.</p>
-        <a 
-          href="/terms" 
-          style={{ color: '#64748b', textDecoration: 'underline', fontWeight: '500' }}
-        >
-          Terms & Conditions / Legal
+      {/* FOOTER LINK - KIFEJEZETTEN KÉRTED */}
+      <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '30px', width: '100%', textAlign: 'center' }}>
+        <a href="/terms" style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px', fontWeight: '500', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#64748b'}>
+          Terms & Conditions / Legal Disclaimer
         </a>
       </div>
 
