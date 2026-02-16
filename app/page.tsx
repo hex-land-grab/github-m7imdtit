@@ -16,7 +16,6 @@ export default function HexLandGrab() {
 
   useEffect(() => {
     const fetchSales = async () => {
-      // 18-ra emeltem a limitet, hogy jobban mutasson a szélesebb gridben
       const { data } = await supabase.from('sold_colors').select('*').order('created_at', { ascending: false }).limit(18);
       if (data) setRecentSales(data);
     };
@@ -57,17 +56,16 @@ export default function HexLandGrab() {
 
   const shareOnX = () => {
     const text = `I just found that #${hex} is AVAILABLE on Hex Land Grab! Who's gonna own it?`;
-    // Itt majd cseréld le a saját domainedre, ha meglesz!
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent('https://hex-land-grab.vercel.app')}`; 
     window.open(url, '_blank');
   }
 
   return (
     <div style={{ 
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)', // Kék-Lila mély átmenet
+      background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)', 
       minHeight: '100vh', 
       color: '#fff', 
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', // Modern font
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       display: 'flex', 
       flexDirection: 'column', 
       alignItems: 'center', 
@@ -94,12 +92,12 @@ export default function HexLandGrab() {
           Hex Land Grab
         </h1>
         <p style={{ fontSize: '1.25rem', color: '#94a3b8', maxWidth: '600px', margin: '0 auto', lineHeight: '1.6' }}>
-          Az internet minden színe eladó. Egyszer. Egy embernek. <br/>
-          <span style={{ color: '#fff' }}>Birtokold a tiédet örökre.</span>
+          Every color on the internet is for sale. Once. To one person. <br/>
+          <span style={{ color: '#fff' }}>Own yours forever.</span>
         </p>
       </div>
       
-      {/* MAIN INTERACTION CARD - GLASS EFFECT */}
+      {/* MAIN INTERACTION CARD */}
       <div style={{ 
         backdropFilter: 'blur(20px)',
         backgroundColor: 'rgba(255, 255, 255, 0.03)',
@@ -114,7 +112,7 @@ export default function HexLandGrab() {
           <Search style={{ position: 'absolute', left: '24px', top: '24px', color: '#94a3b8', width: '24px', height: '24px' }} />
           <input 
             type="text" value={hex} onChange={(e) => checkColor(e.target.value)}
-            placeholder="Keresés (pl. FF0055)"
+            placeholder="Search Hex (e.g. FF0055)"
             style={{ 
               width: '100%', 
               backgroundColor: 'rgba(0,0,0,0.2)', 
@@ -126,13 +124,13 @@ export default function HexLandGrab() {
               outline: 'none',
               transition: 'all 0.3s ease',
               fontWeight: '600',
-              letterSpacing: '2px'
+              letterSpacing: '1px'
             }} 
           />
         </div>
 
         <div style={{ minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          {status === 'idle' && <p style={{ color: '#64748b' }}>Írj be 6 karaktert a kereséshez.</p>}
+          {status === 'idle' && <p style={{ color: '#64748b' }}>Type 6 characters to check availability.</p>}
           {status === 'checking' && <Loader2 className="animate-spin" style={{ color: '#fff', width: '32px', height: '32px' }} />}
           
           {status === 'available' && hex.length === 6 && (
@@ -178,7 +176,7 @@ export default function HexLandGrab() {
                   onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
                   onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                  MEGVESZEM ($5) <ExternalLink size={20}/>
+                  CLAIM FOR $5 <ExternalLink size={20}/>
                 </a>
                 <button 
                   onClick={shareOnX}
@@ -202,18 +200,18 @@ export default function HexLandGrab() {
           {status === 'taken' && (
             <div style={{ color: '#f87171', display: 'flex', flexDirection: 'column', alignItems: 'center', backgroundColor: 'rgba(239, 68, 68, 0.1)', padding: '20px', borderRadius: '16px', width: '100%' }}>
               <span style={{ fontSize: '32px', marginBottom: '8px' }}>🔒</span>
-              <p style={{ fontWeight: '800', fontSize: '18px' }}>MÁR FOGLALT</p>
-              <p style={{ fontSize: '14px', color: '#fca5a5', marginTop: '4px' }}>Ez a szín már valaki másé.</p>
+              <p style={{ fontWeight: '800', fontSize: '18px' }}>ALREADY OWNED</p>
+              <p style={{ fontSize: '14px', color: '#fca5a5', marginTop: '4px' }}>This color belongs to someone else.</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* WIDE GRID SECTION */}
+      {/* RECENT GRID */}
       <div style={{ marginTop: '100px', width: '100%', maxWidth: '1200px', padding: '0 20px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px' }}>
-          <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 'bold' }}>Friss Foglalások</h3>
-          <span style={{ color: '#94a3b8' }}>Live Feed • {recentSales.length} db</span>
+          <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: 'bold' }}>Freshly Seized Territories</h3>
+          <span style={{ color: '#94a3b8' }}>Live Feed • {recentSales.length} items</span>
         </div>
         
         <div style={{ 
