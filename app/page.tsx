@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { Search, Loader2, Twitter, ExternalLink, Zap, Shield } from 'lucide-react'
+import { Search, Loader2, Twitter, ExternalLink, Zap } from 'lucide-react'
 
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -48,7 +48,7 @@ export default function HexLandGrab() {
 
   const getGumroadUrl = () => {
     const params = new URLSearchParams({
-      wanted: "true", // VISSZA: Gyors vásárlás
+      wanted: "true", 
       SelectedHex: hex.replace('#', '').toUpperCase()
     });
     return `${G_LINK}?${params.toString()}`;
@@ -62,8 +62,7 @@ export default function HexLandGrab() {
 
   return (
     <div style={{ 
-      // MÉLY HÁTTÉR: Fekete, de egy kis kék fénnyel a tetején (Spotlight effect)
-      background: 'radial-gradient(circle at 50% -20%, #1e293b, #000000)', 
+      background: 'radial-gradient(circle at 50% -20%, #111827, #000000)', 
       minHeight: '100vh', 
       color: '#fff', 
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -81,7 +80,7 @@ export default function HexLandGrab() {
           color: '#e2e8f0', padding: '6px 16px', borderRadius: '20px', marginBottom: '24px', 
           fontSize: '13px', fontWeight: '500', backdropFilter: 'blur(5px)'
         }}>
-          <Zap size={14} fill="#fbbf24" color="#fbbf24" /> V12: High Contrast Dark Mode
+          <Zap size={14} fill="#fbbf24" color="#fbbf24" /> V13: Final Design
         </div>
         
         <h1 style={{ 
@@ -90,26 +89,25 @@ export default function HexLandGrab() {
           marginBottom: '20px', 
           letterSpacing: '-2px',
           lineHeight: '1',
-          textShadow: '0 0 40px rgba(255,255,255,0.2)' // Ragyogás a cím körül
+          textShadow: '0 0 40px rgba(255,255,255,0.1)'
         }}>
           HEX LAND GRAB
         </h1>
+        {/* JAVÍTVA: Csak a lényeg, vicces szöveg nélkül */}
         <p style={{ fontSize: '1.25rem', color: '#cbd5e1', maxWidth: '580px', margin: '0 auto', lineHeight: '1.6' }}>
-          Own a color. <span style={{ color: '#fff', borderBottom: '2px solid #fff' }}>Forever.</span><br/>
-          Verified on the blockchain of... well, Supabase.
+          Own a color. <span style={{ color: '#fff', borderBottom: '2px solid #fff' }}>Forever.</span>
         </p>
       </div>
       
-      {/* MAIN CARD - NEON GLASS */}
+      {/* MAIN CARD - MOST MÁR SZÜRKE */}
       <div style={{ 
-        backgroundColor: 'rgba(20, 20, 20, 0.6)', // Sötét, de áttetsző
-        backdropFilter: 'blur(20px)', // Üveghatás
-        border: '1px solid rgba(255, 255, 255, 0.15)', // Vékony világos keret
+        backgroundColor: '#1f2937', // <--- ITT A SZÜRKE HÁTTÉR (Gray 800)
+        border: '1px solid rgba(255, 255, 255, 0.1)', 
         padding: '40px', 
         borderRadius: '32px', 
         width: '100%', 
         maxWidth: '550px', 
-        boxShadow: '0 0 80px rgba(0,0,0,0.8)', // Erős árnyék a kiemeléshez
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', 
         position: 'relative',
         zIndex: 10
       }}>
@@ -120,8 +118,8 @@ export default function HexLandGrab() {
             placeholder="Search Hex (e.g. FF0055)"
             style={{ 
               width: '100%', 
-              backgroundColor: '#000', 
-              border: `2px solid ${status === 'available' ? '#4ade80' : '#333'}`, 
+              backgroundColor: '#111827', // A beviteli mező sötétebb, hogy legyen kontraszt
+              border: `2px solid ${status === 'available' ? '#4ade80' : '#374151'}`, 
               padding: '20px 20px 20px 64px', 
               fontSize: '24px', 
               color: '#fff', 
@@ -137,7 +135,7 @@ export default function HexLandGrab() {
 
         <div style={{ minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
           {status === 'idle' && (
-            <p style={{ color: '#64748b', fontSize: '15px' }}>Enter 6 characters to check availability.</p>
+            <p style={{ color: '#9ca3af', fontSize: '15px' }}>Enter 6 characters to check availability.</p>
           )}
           
           {status === 'checking' && <Loader2 className="animate-spin" style={{ color: '#fff', width: '32px', height: '32px' }} />}
@@ -145,7 +143,6 @@ export default function HexLandGrab() {
           {status === 'available' && hex.length === 6 && (
             <div className="animate-in fade-in zoom-in duration-300 w-full" style={{ width: '100%' }}>
               
-              {/* PREVIEW BOX */}
               <div style={{ 
                 width: '100%', 
                 height: '110px', 
@@ -155,7 +152,7 @@ export default function HexLandGrab() {
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
-                boxShadow: `0 0 50px -10px #${hex}`, // Színes ragyogás
+                boxShadow: `0 0 50px -10px #${hex}`,
                 border: '2px solid rgba(255,255,255,0.2)'
               }}>
                  <span style={{ 
@@ -167,12 +164,11 @@ export default function HexLandGrab() {
                  }}>#{hex}</span>
               </div>
               
-              {/* ACTION BUTTONS */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px' }}>
                 <a 
                   href={getGumroadUrl()}
                   style={{ 
-                    background: 'linear-gradient(to right, #ffffff, #e2e8f0)', // Fehér gradiens gomb
+                    background: '#fff', 
                     color: '#000', 
                     padding: '18px', 
                     borderRadius: '16px', 
@@ -183,7 +179,7 @@ export default function HexLandGrab() {
                     alignItems: 'center', 
                     justifyContent: 'center', 
                     gap: '10px',
-                    boxShadow: '0 0 20px rgba(255,255,255,0.3)',
+                    boxShadow: '0 0 20px rgba(255,255,255,0.2)',
                     transition: 'transform 0.2s'
                   }}
                   onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
@@ -194,7 +190,7 @@ export default function HexLandGrab() {
                 <button 
                   onClick={shareOnX}
                   style={{ 
-                    backgroundColor: 'rgba(29, 161, 242, 0.2)', 
+                    backgroundColor: 'rgba(29, 161, 242, 0.1)', 
                     border: '1px solid #1DA1F2', 
                     padding: '0 24px', 
                     borderRadius: '16px', 
@@ -203,21 +199,18 @@ export default function HexLandGrab() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     transition: 'background 0.2s'
                   }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(29, 161, 242, 0.4)'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(29, 161, 242, 0.2)'}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(29, 161, 242, 0.2)'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(29, 161, 242, 0.1)'}
                 >
                   <Twitter size={24} />
                 </button>
               </div>
-              <p style={{ marginTop: '15px', fontSize: '12px', color: '#64748b', textAlign: 'center' }}>
-                Instant ownership via Gumroad.
-              </p>
             </div>
           )}
 
           {status === 'taken' && (
             <div style={{ 
-              backgroundColor: 'rgba(239, 68, 68, 0.15)', 
+              backgroundColor: 'rgba(239, 68, 68, 0.1)', 
               border: '1px solid #ef4444',
               color: '#fca5a5', 
               padding: '24px', 
@@ -232,7 +225,6 @@ export default function HexLandGrab() {
         </div>
       </div>
 
-      {/* RECENT GRID - DARK & VIBRANT */}
       <div style={{ marginTop: '100px', width: '100%', maxWidth: '1200px', marginBottom: '60px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px' }}>
           <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>RECENTLY CAPTURED</h3>
@@ -252,7 +244,7 @@ export default function HexLandGrab() {
                 borderRadius: '20px',
                 cursor: 'default',
                 display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
                 padding: '10px',
                 border: '1px solid rgba(255,255,255,0.1)',
                 transition: 'transform 0.2s'
@@ -277,7 +269,6 @@ export default function HexLandGrab() {
         </div>
       </div>
 
-      {/* FOOTER LINK - KIFEJEZETTEN KÉRTED */}
       <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '30px', width: '100%', textAlign: 'center' }}>
         <a href="/terms" style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px', fontWeight: '500', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#64748b'}>
           Terms & Conditions / Legal Disclaimer
