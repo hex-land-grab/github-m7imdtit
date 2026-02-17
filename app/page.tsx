@@ -14,8 +14,8 @@ export default function OwnAColor() {
   const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
   const [recentSales, setRecentSales] = useState<any[]>([])
   
-  // Ez a state felel a háttérszínért
-const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ff0000, #ffa500, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff)');
+  // ITT AZ ÚJ "ULTRA RAINBOW" HÁTTÉR (7 Szín!)
+  const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ff0000, #ffa500, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff)');
 
   useEffect(() => {
     const fetchSales = async () => {
@@ -39,12 +39,13 @@ const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ff0000,
     const clean = val.replace(/[^0-9A-F]/gi, '').toUpperCase().slice(0, 6);
     setHex(clean);
 
-    // Ha van érvényes szín, a háttér változzon meg arra (kicsit sötétítve, hogy olvasható maradjon)
+    // JAVÍTVA: Kivettem a "40"-es áttetszőséget. Mostantól a tiszta színt mutatja!
     if (clean.length === 6) {
-       setBgStyle(`radial-gradient(circle at center, #${clean}40, #000000)`);
+       // Radial gradient: A közepén a tiszta szín, a széleken sötétedik feketébe
+       setBgStyle(`radial-gradient(circle at center, #${clean}, #000000)`);
     } else {
-       // Ha nincs, vissza az alap szivárványra
-       setBgStyle('linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)');
+       // Ha nincs szín, vissza az Ultra Szivárványra
+       setBgStyle('linear-gradient(-45deg, #ff0000, #ffa500, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff)');
     }
 
     if (clean.length !== 6) { setStatus('idle'); return; }
@@ -80,7 +81,8 @@ const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ff0000,
     <div style={{ 
       background: bgStyle,
       backgroundSize: '400% 400%',
-      animation: hex.length === 6 ? 'none' : 'gradientBG 15s ease infinite', // Csak akkor mozogjon, ha nincs kiválasztva szín
+      // Csak akkor mozogjon, ha az alap szivárvány van. Ha választott színt, álljon meg (hogy fókuszáljon).
+      animation: hex.length === 6 ? 'none' : 'gradientBG 20s ease infinite', 
       minHeight: '100vh', 
       color: '#fff', 
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -88,7 +90,7 @@ const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ff0000,
       flexDirection: 'column', 
       alignItems: 'center', 
       padding: '60px 20px',
-      transition: 'background 1s ease'
+      transition: 'background 0.8s ease' // Finom átmenet a színek között
     }}>
       
       {/* CSS Animation Keyframes for Background */}
@@ -104,13 +106,12 @@ const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ff0000,
       <div style={{ textAlign: 'center', marginBottom: '40px', maxWidth: '800px', zIndex: 10 }}>
         
         <h1 style={{ 
-          fontSize: '5rem', // Nagyobb betűméret
+          fontSize: '5rem', 
           fontWeight: '900', 
           marginBottom: '10px', 
           marginTop: '20px',
           letterSpacing: '-2px',
           lineHeight: '1',
-          // Szivárvány szöveg effekt:
           background: 'linear-gradient(to right, #fff, #cbd5e1)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
@@ -130,7 +131,7 @@ const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ff0000,
           The Exclusive Digital Registry. <span style={{ borderBottom: '3px solid #fff' }}>Forever.</span>
         </p>
 
-        {/* PRICE BADGE - ÚJ! */}
+        {/* PRICE BADGE */}
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -153,8 +154,8 @@ const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ff0000,
       
       {/* MAIN CARD - GLASSMORPHISM STYLE */}
       <div style={{ 
-        backgroundColor: 'rgba(30, 41, 59, 0.7)', // Áttetsző sötétkék
-        backdropFilter: 'blur(20px)', // Üveghatás (elhomályosítja a hátteret)
+        backgroundColor: 'rgba(30, 41, 59, 0.7)', 
+        backdropFilter: 'blur(20px)', 
         WebkitBackdropFilter: 'blur(20px)',
         border: '1px solid rgba(255, 255, 255, 0.2)', 
         padding: '50px', 
@@ -293,7 +294,7 @@ const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ff0000,
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'space-between',
-              backgroundColor: 'rgba(30, 41, 59, 0.6)', // Glass effect list item
+              backgroundColor: 'rgba(30, 41, 59, 0.6)', 
               backdropFilter: 'blur(10px)',
               padding: '16px', 
               borderRadius: '16px', 
