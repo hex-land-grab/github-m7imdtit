@@ -14,8 +14,9 @@ export default function OwnAColor() {
   const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
   const [recentSales, setRecentSales] = useState<any[]>([])
   
-  //  HÁTTÉR
-const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)');
+  // A 4 SZÍNŰ ELEGÁNS GRADIENS (Alapértelmezett)
+  const defaultGradient = 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)';
+  const [bgStyle, setBgStyle] = useState<string>(defaultGradient);
 
   useEffect(() => {
     const fetchSales = async () => {
@@ -39,13 +40,19 @@ const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ee7752,
     const clean = val.replace(/[^0-9A-F]/gi, '').toUpperCase().slice(0, 6);
     setHex(clean);
 
-    // JAVÍTVA: Kivettem a "40"-es áttetszőséget. Mostantól a tiszta színt mutatja!
+    // LOGIKA JAVÍTVA:
+    // Csak akkor nyúlunk a háttérhez, ha tényleg muszáj. Így nem akad meg az animáció írás közben.
+    
     if (clean.length === 6) {
-       // Radial gradient: A közepén a tiszta szín, a széleken sötétedik feketébe
+       // Ha megvan a 6 karakter, beállítjuk a specifikus színt
        setBgStyle(`radial-gradient(circle at center, #${clean}, #000000)`);
     } else {
-       // Ha nincs szín, vissza az Ultra Szivárványra
-       setBgStyle('linear-gradient(-45deg, #ff0000, #ffa500, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff)');
+       // Ha nincs meg a 6 karakter (tehát 0-5 között vagyunk)...
+       // ...akkor csak akkor állítjuk vissza, ha EDDIG nem a gradiens volt.
+       // Ezzel megakadályozzuk, hogy minden betűnél újratöltse a hátteret.
+       if (!bgStyle.includes('linear-gradient')) {
+          setBgStyle(defaultGradient);
+       }
     }
 
     if (clean.length !== 6) { setStatus('idle'); return; }
@@ -81,8 +88,8 @@ const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ee7752,
     <div style={{ 
       background: bgStyle,
       backgroundSize: '400% 400%',
-      // Csak akkor mozogjon, ha az alap szivárvány van. Ha választott színt, álljon meg (hogy fókuszáljon).
-      animation: hex.length === 6 ? 'none' : 'gradientBG 20s ease infinite', 
+      // Az animáció fut, amíg nincs kiválasztva konkrét szín (length != 6)
+      animation: hex.length === 6 ? 'none' : 'gradientBG 15s ease infinite', 
       minHeight: '100vh', 
       color: '#fff', 
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
