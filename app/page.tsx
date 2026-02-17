@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info } from 'lucide-react'
+import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info, Trophy } from 'lucide-react'
 
 // Környezeti változók
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -14,26 +14,35 @@ export default function OwnAColor() {
   const [hex, setHex] = useState('')
   const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
   const [recentSales, setRecentSales] = useState<any[]>([])
+  const [totalCount, setTotalCount] = useState<number>(0) // ÚJ: Számláló
   
   useEffect(() => {
+    // 1. Lekérjük az utolsó 100 eladást a Gridhez (többet mutatunk)
     const fetchSales = async () => {
-      const { data } = await supabase.from('sold_colors').select('*').order('created_at', { ascending: false }).limit(20);
+      const { data, count } = await supabase
+        .from('sold_colors')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .limit(50); // Több elem a rácshoz
+      
       if (data) setRecentSales(data);
+      if (count !== null) setTotalCount(count);
     };
 
     fetchSales();
 
+    // 2. Realtime feliratkozás
     const channel = supabase
       .channel('realtime_sales')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sold_colors' }, (payload) => {
-        setRecentSales((prev) => [payload.new, ...prev.slice(0, 19)]);
+        setRecentSales((prev) => [payload.new, ...prev.slice(0, 49)]);
+        setTotalCount((prev) => prev + 1); // Számláló növelése
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); }
   }, []);
 
-  // VÉLETLEN SZÍN GENERÁTOR
   const generateRandomColor = () => {
     const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().padStart(6, '0');
     setHex(randomHex);
@@ -67,12 +76,6 @@ export default function OwnAColor() {
     window.open(url, '_blank');
   }
 
-  const formatDate = (dateString: string) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  }
-
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -86,175 +89,159 @@ export default function OwnAColor() {
       overflowX: 'hidden'
     }}>
       
-      {/* 1. RÉTEG: MOZGÓ GRADIENS */}
+      {/* HÁTTÉR */}
       <div style={{
         position: 'fixed',
         top: 0, left: 0, right: 0, bottom: 0,
         zIndex: -2,
-        background: 'linear-gradient(-45deg, #ee7752, #e73c7e, #0B31A5, #23d5ab)',
+        background: 'linear-gradient(-45deg, #0f172a, #1e293b, #0f172a)', // Sötétebb, elegánsabb háttér
         backgroundSize: '400% 400%',
-        animation: 'gradientBG 15s ease infinite'
       }} />
 
-      {/* 2. RÉTEG: KIVÁLASZTOTT SZÍN FÜGGÖNY */}
+      {/* DYNAMIC GLOW */}
       <div style={{
         position: 'fixed',
         top: 0, left: 0, right: 0, bottom: 0,
         zIndex: -1,
-        background: hex.length === 6 ? `radial-gradient(circle at center, #${hex}, #000000)` : 'transparent',
-        opacity: hex.length === 6 ? 1 : 0,
-        transition: 'opacity 1s ease, background 0.5s ease'
+        background: hex.length === 6 ? `radial-gradient(circle at center, #${hex}40, transparent 70%)` : 'transparent',
+        transition: 'background 0.5s ease'
       }} />
 
-      <style jsx global>{`
-        @keyframes gradientBG {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
-      `}</style>
-
-      {/* HEADER - FRISSÍTETT BIZALMI SZÖVEGEKKEL */}
-      <div style={{ textAlign: 'center', marginBottom: '40px', maxWidth: '800px', zIndex: 10 }}>
+      {/* HEADER */}
+      <div style={{ textAlign: 'center', marginBottom: '50px', maxWidth: '800px', zIndex: 10 }}>
         <h1 style={{ 
           fontSize: '4.5rem', fontWeight: '900', marginBottom: '10px', marginTop: '20px', letterSpacing: '-2px', lineHeight: '1',
-          background: 'linear-gradient(to right, #fff, #cbd5e1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.3))'
+          background: 'linear-gradient(to right, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
         }}>
           OWN A COLOR
         </h1>
         
-        {/* Value Proposition + Trust Defender */}
-        <p style={{ fontSize: '1.2rem', color: '#e2e8f0', maxWidth: '640px', margin: '0 auto 20px auto', lineHeight: '1.6', fontWeight: '500' }}>
+        <p style={{ fontSize: '1.2rem', color: '#94a3b8', maxWidth: '640px', margin: '0 auto 20px auto', lineHeight: '1.6' }}>
           The Global Registry. <span style={{ color: '#fff', fontWeight: '700' }}>16 Million Colors.</span> One Owner Each.
-          <br/> Claim your spot on the ledger forever.
         </p>
 
-        {/* Apró betűs, de látható "Trust" szöveg above-the-fold */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '20px', opacity: 0.7 }}>
-          <Info size={14} color="#cbd5e1" />
-          <span style={{ fontSize: '12px', color: '#cbd5e1' }}>Official Registry Entry • Digital Collectible Service • Not IP Rights</span>
-        </div>
-
-        {/* Árcédula Badge */}
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', backgroundColor: '#fbbf24', borderRadius: '50px', boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)', transform: 'rotate(-2deg)' }}>
-          <Tag size={18} color="#000" fill="#000" />
-          <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>EARLY ACCESS: $5 USD</span>
+        {/* ÚJ: STATISZTIKA SÁV */}
+        <div style={{ display: 'inline-flex', gap: '24px', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.05)', padding: '10px 24px', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+             <Trophy size={16} color="#fbbf24" />
+             <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount > 0 ? `${totalCount} Colors Claimed` : 'Registry Open'}</span>
+          </div>
+          <div style={{ width: '1px', height: '16px', backgroundColor: 'rgba(255,255,255,0.2)' }}></div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+             <Tag size={16} color="#4ade80" />
+             <span style={{ fontWeight: '700', fontSize: '14px', color: '#4ade80' }}>$5 Entry Price</span>
+          </div>
         </div>
       </div>
       
-      {/* MAIN CARD */}
-      <div style={{ backgroundColor: 'rgba(30, 41, 59, 0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '50px', borderRadius: '32px', width: '100%', maxWidth: '600px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', position: 'relative', zIndex: 10 }}>
+      {/* MAIN INTERACTION CARD */}
+      <div style={{ backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '40px', borderRadius: '24px', width: '100%', maxWidth: '550px', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.5)', marginBottom: '80px', zIndex: 10 }}>
         
-        {/* KERESŐ + RANDOM GOMB */}
-        <div style={{ position: 'relative', marginBottom: '30px', display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '24px' }}>
           <div style={{ position: 'relative', flexGrow: 1 }}>
-            <Search style={{ position: 'absolute', left: '20px', top: '22px', color: '#cbd5e1', width: '20px', height: '20px' }} />
-            <input type="text" value={hex} onChange={(e) => checkColor(e.target.value)} placeholder="Search Hex (e.g. FF0055)"
-              style={{ width: '100%', backgroundColor: 'rgba(15, 23, 42, 0.6)', border: `2px solid ${status === 'available' ? '#4ade80' : 'rgba(255,255,255,0.1)'}`, padding: '18px 18px 18px 50px', fontSize: '20px', color: '#fff', borderRadius: '16px', outline: 'none', transition: 'all 0.3s ease', fontWeight: '700', letterSpacing: '2px', boxShadow: status === 'available' ? '0 0 30px rgba(74, 222, 128, 0.4)' : 'none' }} 
+            <Search style={{ position: 'absolute', left: '16px', top: '16px', color: '#64748b', width: '20px', height: '20px' }} />
+            <input type="text" value={hex} onChange={(e) => checkColor(e.target.value)} placeholder="Try FF0055..."
+              style={{ width: '100%', backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', padding: '14px 14px 14px 48px', fontSize: '18px', color: '#fff', borderRadius: '12px', outline: 'none', fontFamily: 'monospace', textTransform: 'uppercase' }} 
             />
           </div>
-          
-          <button onClick={generateRandomColor} title="Surprise Me!" style={{ 
-            backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.2)', 
-            borderRadius: '16px', width: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', transition: 'background 0.2s'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'} 
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}>
-            <Shuffle size={24} color="#fff" />
+          <button onClick={generateRandomColor} style={{ backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', width: '54px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <Shuffle size={20} color="#94a3b8" />
           </button>
         </div>
 
-        <div style={{ minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          {status === 'idle' && (
-            <div style={{textAlign: 'center', color: '#cbd5e1'}}>
-              <p style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>Enter 6 characters OR click Shuffle.</p>
-              <p style={{ fontSize: '12px', opacity: 0.6 }}>Find your unique color in the registry.</p>
-            </div>
-          )}
-          {status === 'checking' && <Loader2 className="animate-spin" style={{ color: '#fff', width: '32px', height: '32px' }} />}
+        <div style={{ minHeight: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          {status === 'idle' && <p style={{ color: '#64748b', fontSize: '14px' }}>Search specifically or shuffle randomly.</p>}
+          {status === 'checking' && <Loader2 className="animate-spin" style={{ color: '#fff' }} />}
           
           {status === 'available' && hex.length === 6 && (
-            <div className="animate-in fade-in zoom-in duration-300 w-full" style={{ width: '100%' }}>
-              <div style={{ width: '100%', height: '110px', backgroundColor: `#${hex}`, borderRadius: '20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 0 50px -10px #${hex}`, border: '2px solid rgba(255,255,255,0.4)' }}>
-                 <span style={{ color: parseInt(hex, 16) > 0xffffff / 2 ? '#000' : '#fff', fontWeight: '900', fontSize: '32px', letterSpacing: '2px', textShadow: parseInt(hex, 16) > 0xffffff / 2 ? 'none' : '0 2px 10px rgba(0,0,0,0.5)' }}>#{hex}</span>
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-300 w-full">
+              {/* PREVIEW KÁRTYA */}
+              <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '6px', marginBottom: '20px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.3)' }}>
+                 <div style={{ backgroundColor: `#${hex}`, borderRadius: '12px', height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                    <span style={{ color: parseInt(hex, 16) > 0xffffff / 2 ? '#000' : '#fff', fontWeight: '900', fontSize: '28px', letterSpacing: '2px' }}>#{hex}</span>
+                    <span style={{ color: parseInt(hex, 16) > 0xffffff / 2 ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)', fontSize: '10px', marginTop: '4px', textTransform: 'uppercase', fontWeight: '700' }}>Available to Claim</span>
+                 </div>
               </div>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', marginBottom: '10px' }}>
-                <a href={getGumroadUrl()} style={{ background: '#fff', color: '#000', padding: '18px', borderRadius: '16px', textDecoration: 'none', fontWeight: '800', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 0 20px rgba(255,255,255,0.4)', transition: 'transform 0.2s' }}
-                  onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
-                  CLAIM NOW ($5) <ExternalLink size={20}/>
-                </a>
-                <button onClick={shareOnX} style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.3)', padding: '0 24px', borderRadius: '16px', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}>
-                  <Twitter size={24} />
-                </button>
-              </div>
-              
-              {/* "What happens next" szöveg */}
-              <p style={{ textAlign: 'center', fontSize: '12px', color: '#94a3b8', marginTop: '8px' }}>
-                Instant listing on the Global Ledger immediately after payment.
-              </p>
+              <a href={getGumroadUrl()} style={{ background: '#3b82f6', color: '#fff', padding: '16px', borderRadius: '12px', textDecoration: 'none', fontWeight: '700', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%', marginBottom: '12px', transition: 'background 0.2s' }}
+                 onMouseOver={(e) => e.currentTarget.style.background = '#2563eb'} onMouseOut={(e) => e.currentTarget.style.background = '#3b82f6'}>
+                 Claim for $5 <ExternalLink size={16}/>
+              </a>
+              <p style={{ textAlign: 'center', fontSize: '11px', color: '#64748b' }}>Includes entry on the Global Ledger forever.</p>
             </div>
           )}
+
           {status === 'taken' && (
-            <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#fca5a5', padding: '24px', borderRadius: '20px', width: '100%', textAlign: 'center' }}>
-              <p style={{ fontWeight: '800', fontSize: '20px', color: '#fff', marginBottom: '5px' }}>LOCKED 🔒</p>
-              <p style={{ fontSize: '14px', color: '#fff' }}>This color is already owned by someone else.</p>
-            </div>
+             <div style={{ textAlign: 'center', width: '100%', padding: '20px', border: '1px dashed #ef4444', borderRadius: '12px', backgroundColor: 'rgba(239,68,68,0.05)' }}>
+                <p style={{ color: '#ef4444', fontWeight: '700', marginBottom: '4px' }}>ALREADY CLAIMED</p>
+                <p style={{ color: '#94a3b8', fontSize: '13px' }}>This color belongs to someone else.</p>
+             </div>
           )}
         </div>
       </div>
 
-      {/* LIST VIEW SECTION */}
-      <div style={{ marginTop: '100px', width: '100%', maxWidth: '700px', marginBottom: '60px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: '20px' }}>
-          <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
-             <Globe size={20} color="#fff"/>
-             <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>OWNERSHIP LEDGER</h3>
-          </div>
-          <span style={{ color: '#4ade80', fontSize: '12px', fontFamily: 'monospace', fontWeight: '700', border: '1px solid #4ade80', padding: '4px 8px', borderRadius: '4px' }}>● LIVE FEED</span>
+      {/* --- ÚJ: VISUAL GRID LEDGER (Galéria) --- */}
+      <div style={{ width: '100%', maxWidth: '1000px', marginBottom: '60px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', padding: '0 20px' }}>
+          <h3 style={{ color: '#fff', fontSize: '1.2rem', fontWeight: '800' }}>LATEST CLAIMS</h3>
+          <span style={{ color: '#4ade80', fontSize: '11px', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ width: '8px', height: '8px', backgroundColor: '#4ade80', borderRadius: '50%', display: 'inline-block', boxShadow: '0 0 10px #4ade80' }}></span>
+            LIVE
+          </span>
         </div>
         
-        <div className="custom-scrollbar" style={{ maxHeight: '450px', overflowY: 'auto', paddingRight: '12px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {recentSales.map((sale) => (
-              <div key={sale.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(30, 41, 59, 0.6)', backdropFilter: 'blur(10px)', padding: '16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                  <div style={{ width: '50px', height: '50px', backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`, borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }}></div>
-                  <div>
-                    <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '18px', fontFamily: 'monospace' }}>{sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}</div>
-                    <div style={{ color: '#cbd5e1', fontSize: '13px' }}>Owned by <span style={{ color: '#fff', fontWeight: '700' }}>{sale.owner_name || 'Anonymous'}</span></div>
-                  </div>
+        {/* CSS GRID LAYOUT */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', // Reszponzív rács
+          gap: '16px', 
+          padding: '0 20px' 
+        }}>
+          {recentSales.map((sale) => (
+            <div key={sale.id} className="group" style={{ position: 'relative' }}>
+              {/* Szín Kártya */}
+              <div style={{ 
+                backgroundColor: 'rgba(30, 41, 59, 0.5)', 
+                border: '1px solid rgba(255,255,255,0.05)', 
+                borderRadius: '16px', 
+                overflow: 'hidden',
+                transition: 'transform 0.2s',
+                cursor: 'default'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                <div style={{ 
+                  height: '100px', 
+                  backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                   {/* Csak hoverre mutatja a hexet ha akarjuk, vagy mindig - most legyen tiszta */}
                 </div>
-                <div style={{ color: '#cbd5e1', fontSize: '12px' }}>{formatDate(sale.created_at)}</div>
+                <div style={{ padding: '12px' }}>
+                  <p style={{ color: '#fff', fontSize: '14px', fontWeight: '700', fontFamily: 'monospace', marginBottom: '4px' }}>
+                    {sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}
+                  </p>
+                  <p style={{ color: '#94a3b8', fontSize: '11px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {sale.owner_name || 'Anonymous'}
+                  </p>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* FOOTER */}
-      <footer style={{ marginTop: 'auto', width: '100%', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '48px', paddingBottom: '48px' }}>
-        <div style={{ maxWidth: '896px', margin: '0 auto', padding: '0 16px' }}>
-          <p style={{ color: '#71717a', fontSize: '14px', marginBottom: '16px' }}>
-            © 2026 Own a Color. The Exclusive Global Registry.
-          </p>
-          
-          <p style={{ color: '#a1a1aa', fontSize: '12px', lineHeight: '1.6', maxWidth: '672px', margin: '0 auto 32px auto' }}>
+      <footer style={{ marginTop: 'auto', width: '100%', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '48px', paddingBottom: '48px' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 16px' }}>
+           <p style={{ color: '#64748b', fontSize: '11px', lineHeight: '1.6', maxWidth: '500px', margin: '0 auto 24px auto' }}>
             DISCLAIMER: "Ownership" refers to a permanent entry in the Own a Color Registry database. 
-            This service acts as a digital collectible registry and does not confer legal intellectual property rights, 
-            trademark protection, or copyright ownership for the selected color code. 
-            Purchase represents a listing service for the lifetime of the platform.
+            This service acts as a digital collectible registry and does not confer legal IP rights.
           </p>
-
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', fontSize: '12px', fontWeight: '500', letterSpacing: '0.05em', color: '#a1a1aa' }}>
-            <a href="/terms" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#a1a1aa'}>TERMS & CONDITIONS</a>
-            <a href="/privacy" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#a1a1aa'}>PRIVACY POLICY</a>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', fontSize: '12px', fontWeight: '600', color: '#475569' }}>
+            <a href="/terms" style={{ textDecoration: 'none', color: 'inherit' }}>TERMS</a>
+            <a href="/privacy" style={{ textDecoration: 'none', color: 'inherit' }}>PRIVACY</a>
           </div>
         </div>
       </footer>
