@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { Search, Loader2, Twitter, ExternalLink } from 'lucide-react'
+import { Search, Loader2, Twitter, ExternalLink, Tag } from 'lucide-react'
 
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -101,12 +101,12 @@ export default function OwnAColor() {
       `}</style>
 
       {/* HEADER */}
-      <div style={{ textAlign: 'center', marginBottom: '50px', maxWidth: '800px', zIndex: 10 }}>
+      <div style={{ textAlign: 'center', marginBottom: '40px', maxWidth: '800px', zIndex: 10 }}>
         
         <h1 style={{ 
           fontSize: '5rem', // Nagyobb betűméret
           fontWeight: '900', 
-          marginBottom: '20px', 
+          marginBottom: '10px', 
           marginTop: '20px',
           letterSpacing: '-2px',
           lineHeight: '1',
@@ -122,13 +122,33 @@ export default function OwnAColor() {
           fontSize: '1.5rem', 
           color: '#fff', 
           maxWidth: '600px', 
-          margin: '0 auto', 
+          margin: '0 auto 20px auto', 
           lineHeight: '1.6', 
           fontWeight: '500',
           textShadow: '0 2px 10px rgba(0,0,0,0.5)' 
         }}>
           The Exclusive Digital Registry. <span style={{ borderBottom: '3px solid #fff' }}>Forever.</span>
         </p>
+
+        {/* PRICE BADGE - ÚJ! */}
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '8px 24px',
+          backgroundColor: 'rgba(255, 255, 255, 0.15)',
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          borderRadius: '50px',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+          marginTop: '10px'
+        }}>
+          <Tag size={18} color="#fbbf24" fill="#fbbf24" />
+          <span style={{ color: '#fff', fontWeight: '800', fontSize: '16px', letterSpacing: '1px' }}>
+            FIXED PRICE: $5 USD
+          </span>
+        </div>
+
       </div>
       
       {/* MAIN CARD - GLASSMORPHISM STYLE */}
