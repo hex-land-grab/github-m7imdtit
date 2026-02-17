@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { Search, Loader2, Twitter, ExternalLink, Tag } from 'lucide-react'
+import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe } from 'lucide-react'
 
 // Környezeti változók
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -32,6 +32,13 @@ export default function OwnAColor() {
 
     return () => { supabase.removeChannel(channel); }
   }, []);
+
+  // --- ÚJ FUNKCIÓ: VÉLETLEN SZÍN GENERÁTOR ---
+  const generateRandomColor = () => {
+    const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().padStart(6, '0');
+    setHex(randomHex);
+    checkColor(randomHex);
+  }
 
   async function checkColor(val: string) {
     const clean = val.replace(/[^0-9A-F]/gi, '').toUpperCase().slice(0, 6);
@@ -105,42 +112,67 @@ export default function OwnAColor() {
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
-        /* Egyedi görgetősáv stílus */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
       `}</style>
 
-      {/* HEADER */}
+      {/* --- MÓDOSÍTOTT HEADER (Jobb szövegek) --- */}
       <div style={{ textAlign: 'center', marginBottom: '40px', maxWidth: '800px', zIndex: 10 }}>
         <h1 style={{ 
-          fontSize: '5rem', fontWeight: '900', marginBottom: '10px', marginTop: '20px', letterSpacing: '-2px', lineHeight: '1',
+          fontSize: '4.5rem', fontWeight: '900', marginBottom: '15px', marginTop: '20px', letterSpacing: '-2px', lineHeight: '1',
           background: 'linear-gradient(to right, #fff, #cbd5e1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.3))'
         }}>
           OWN A COLOR
         </h1>
-        <p style={{ fontSize: '1.5rem', color: '#fff', maxWidth: '600px', margin: '0 auto 20px auto', lineHeight: '1.6', fontWeight: '500', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
-          The Exclusive Digital Registry. <span style={{ borderBottom: '3px solid #fff' }}>Forever.</span>
+        
+        {/* Value Proposition - A "Miért" */}
+        <p style={{ fontSize: '1.2rem', color: '#e2e8f0', maxWidth: '600px', margin: '0 auto 25px auto', lineHeight: '1.6', fontWeight: '500' }}>
+          The Global Registry. <span style={{ color: '#fff', fontWeight: '700' }}>16 Million Colors.</span> One Owner Each.
+          <br/> Claim yours before it's gone forever.
         </p>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '8px 24px', backgroundColor: 'rgba(255, 255, 255, 0.15)', border: '1px solid rgba(255, 255, 255, 0.3)', borderRadius: '50px', backdropFilter: 'blur(10px)', boxShadow: '0 4px 20px rgba(0,0,0,0.2)', marginTop: '10px' }}>
-          <Tag size={18} color="#fbbf24" fill="#fbbf24" />
-          <span style={{ color: '#fff', fontWeight: '800', fontSize: '16px', letterSpacing: '1px' }}>FIXED PRICE: $5 USD</span>
+
+        {/* Árcédula Badge - Kicsit hangsúlyosabb */}
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', backgroundColor: '#fbbf24', borderRadius: '50px', boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)', marginTop: '5px', transform: 'rotate(-2deg)' }}>
+          <Tag size={18} color="#000" fill="#000" />
+          <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>EARLY ACCESS: $5 USD</span>
         </div>
       </div>
       
       {/* MAIN CARD */}
       <div style={{ backgroundColor: 'rgba(30, 41, 59, 0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '50px', borderRadius: '32px', width: '100%', maxWidth: '600px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', position: 'relative', zIndex: 10 }}>
-        <div style={{ position: 'relative', marginBottom: '30px' }}>
-          <Search style={{ position: 'absolute', left: '24px', top: '24px', color: '#cbd5e1', width: '24px', height: '24px' }} />
-          <input type="text" value={hex} onChange={(e) => checkColor(e.target.value)} placeholder="Search Hex (e.g. FF0055)"
-            style={{ width: '100%', backgroundColor: 'rgba(15, 23, 42, 0.6)', border: `2px solid ${status === 'available' ? '#4ade80' : 'rgba(255,255,255,0.1)'}`, padding: '20px 20px 20px 64px', fontSize: '24px', color: '#fff', borderRadius: '20px', outline: 'none', transition: 'all 0.3s ease', fontWeight: '700', letterSpacing: '2px', boxShadow: status === 'available' ? '0 0 30px rgba(74, 222, 128, 0.4)' : 'none' }} 
-          />
+        
+        {/* --- KERESŐ + RANDOM GOMB --- */}
+        <div style={{ position: 'relative', marginBottom: '30px', display: 'flex', gap: '10px' }}>
+          <div style={{ position: 'relative', flexGrow: 1 }}>
+            <Search style={{ position: 'absolute', left: '20px', top: '22px', color: '#cbd5e1', width: '20px', height: '20px' }} />
+            <input type="text" value={hex} onChange={(e) => checkColor(e.target.value)} placeholder="Search Hex (e.g. FF0055)"
+              style={{ width: '100%', backgroundColor: 'rgba(15, 23, 42, 0.6)', border: `2px solid ${status === 'available' ? '#4ade80' : 'rgba(255,255,255,0.1)'}`, padding: '18px 18px 18px 50px', fontSize: '20px', color: '#fff', borderRadius: '16px', outline: 'none', transition: 'all 0.3s ease', fontWeight: '700', letterSpacing: '2px', boxShadow: status === 'available' ? '0 0 30px rgba(74, 222, 128, 0.4)' : 'none' }} 
+            />
+          </div>
+          
+          {/* ÚJ: SURPRISE ME GOMB */}
+          <button onClick={generateRandomColor} title="Surprise Me!" style={{ 
+            backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.2)', 
+            borderRadius: '16px', width: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', transition: 'background 0.2s'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'} 
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}>
+            <Shuffle size={24} color="#fff" />
+          </button>
         </div>
 
         <div style={{ minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          {status === 'idle' && <p style={{ color: '#cbd5e1', fontSize: '16px', fontWeight: '500' }}>Enter 6 characters to check availability.</p>}
+          {status === 'idle' && (
+            <div style={{textAlign: 'center', color: '#cbd5e1'}}>
+              <p style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>Enter 6 characters OR click Shuffle.</p>
+              <p style={{ fontSize: '12px', opacity: 0.6 }}>Find your spot in the registry.</p>
+            </div>
+          )}
           {status === 'checking' && <Loader2 className="animate-spin" style={{ color: '#fff', width: '32px', height: '32px' }} />}
+          
           {status === 'available' && hex.length === 6 && (
             <div className="animate-in fade-in zoom-in duration-300 w-full" style={{ width: '100%' }}>
               <div style={{ width: '100%', height: '110px', backgroundColor: `#${hex}`, borderRadius: '20px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 0 50px -10px #${hex}`, border: '2px solid rgba(255,255,255,0.4)' }}>
@@ -161,7 +193,7 @@ export default function OwnAColor() {
           {status === 'taken' && (
             <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#fca5a5', padding: '24px', borderRadius: '20px', width: '100%', textAlign: 'center' }}>
               <p style={{ fontWeight: '800', fontSize: '20px', color: '#fff', marginBottom: '5px' }}>LOCKED 🔒</p>
-              <p style={{ fontSize: '14px', color: '#fff' }}>This territory is already occupied.</p>
+              <p style={{ fontSize: '14px', color: '#fff' }}>This color is already owned.</p>
             </div>
           )}
         </div>
@@ -170,8 +202,11 @@ export default function OwnAColor() {
       {/* LIST VIEW SECTION */}
       <div style={{ marginTop: '100px', width: '100%', maxWidth: '700px', marginBottom: '60px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: '20px' }}>
-          <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>OWNERSHIP LEDGER</h3>
-          <span style={{ color: '#e2e8f0', fontSize: '14px', fontFamily: 'monospace', fontWeight: '600' }}>● LIVE FEED</span>
+          <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+             <Globe size={20} color="#fff"/>
+             <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>OWNERSHIP LEDGER</h3>
+          </div>
+          <span style={{ color: '#4ade80', fontSize: '12px', fontFamily: 'monospace', fontWeight: '700', border: '1px solid #4ade80', padding: '4px 8px', borderRadius: '4px' }}>● LIVE FEED</span>
         </div>
         
         <div className="custom-scrollbar" style={{ maxHeight: '450px', overflowY: 'auto', paddingRight: '12px' }}>
@@ -192,7 +227,7 @@ export default function OwnAColor() {
         </div>
       </div>
 
-      {/* --- MÓDOSÍTOTT JOGI VÉDELMI LÁBLÉC (CONTACT NÉLKÜL) --- */}
+      {/* --- JOGI VÉDELMI LÁBLÉC (Megtartva) --- */}
       <footer style={{ marginTop: 'auto', width: '100%', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '48px', paddingBottom: '48px' }}>
         <div style={{ maxWidth: '896px', margin: '0 auto', padding: '0 16px' }}>
           <p style={{ color: '#71717a', fontSize: '14px', marginBottom: '16px' }}>
