@@ -167,7 +167,7 @@ export default function OwnAColor() {
         </div>
       </div>
 
-      {/* LIST VIEW SECTION - GÖRGETHETŐ FIX */}
+      {/* LIST VIEW SECTION */}
       <div style={{ marginTop: '100px', width: '100%', maxWidth: '700px', marginBottom: '60px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: '20px' }}>
           <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>OWNERSHIP LEDGER</h3>
@@ -192,15 +192,27 @@ export default function OwnAColor() {
         </div>
       </div>
 
-      {/* FOOTER */}
-      <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: '30px', paddingBottom: '40px', width: '100%', textAlign: 'center' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', alignItems: 'center' }}>
-          <a href="/terms" style={{ color: '#e2e8f0', textDecoration: 'none', fontSize: '14px' }}>Terms & Conditions</a>
-          <span style={{ color: '#fff' }}>|</span>
-          <a href="/privacy" style={{ color: '#e2e8f0', textDecoration: 'none', fontSize: '14px' }}>Privacy Policy</a>
+      {/* --- ÚJ JOGI VÉDELMI LÁBLÉC (LEGAL SHIELD) --- */}
+      <footer style={{ marginTop: 'auto', width: '100%', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '48px', paddingBottom: '48px' }}>
+        <div style={{ maxWidth: '896px', margin: '0 auto', padding: '0 16px' }}>
+          <p style={{ color: '#71717a', fontSize: '14px', marginBottom: '16px' }}>
+            © 2026 Own a Color. The Exclusive Global Registry.
+          </p>
+          
+          <p style={{ color: '#a1a1aa', fontSize: '12px', lineHeight: '1.6', maxWidth: '672px', margin: '0 auto 32px auto' }}>
+            DISCLAIMER: "Ownership" refers to a permanent entry in the Own a Color Registry database. 
+            This service acts as a digital collectible registry and does not confer legal intellectual property rights, 
+            trademark protection, or copyright ownership for the selected color code. 
+            Purchase represents a listing service for the lifetime of the platform.
+          </p>
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', fontSize: '12px', fontWeight: '500', letterSpacing: '0.05em', color: '#a1a1aa' }}>
+            <a href="/terms" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#a1a1aa'}>TERMS & CONDITIONS</a>
+            <a href="/privacy" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#a1a1aa'}>PRIVACY POLICY</a>
+            <a href="mailto:support@ownacolor.com" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#a1a1aa'}>CONTACT</a>
+          </div>
         </div>
-        <p style={{ marginTop: '15px', fontSize: '12px', color: '#e2e8f0' }}>&copy; 2026 Own a Color. All rights reserved.</p>
-      </div>
+      </footer>
     </div>
   )
 }
