@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info, Trophy } from 'lucide-react'
+import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info, Trophy, CheckCircle } from 'lucide-react'
 
 // Környezeti változók
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -14,11 +14,10 @@ export default function OwnAColor() {
   const [hex, setHex] = useState('')
   const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
   const [recentSales, setRecentSales] = useState<any[]>([])
-  const [totalCount, setTotalCount] = useState<number>(0) // ÚJ ÁLLAPOT: Számláló
+  const [totalCount, setTotalCount] = useState<number>(0)
   
   useEffect(() => {
     const fetchSales = async () => {
-      // Módosított lekérdezés: count (számolás) + limit 50 a rács miatt
       const { data, count } = await supabase
         .from('sold_colors')
         .select('*', { count: 'exact' })
@@ -34,15 +33,14 @@ export default function OwnAColor() {
     const channel = supabase
       .channel('realtime_sales')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sold_colors' }, (payload) => {
-        setRecentSales((prev) => [payload.new, ...prev.slice(0, 49)]); // 50-re növelve a buffer
-        setTotalCount((prev) => prev + 1); // Számláló növelése élőben
+        setRecentSales((prev) => [payload.new, ...prev.slice(0, 49)]);
+        setTotalCount((prev) => prev + 1);
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); }
   }, []);
 
-  // VÉLETLEN SZÍN GENERÁTOR
   const generateRandomColor = () => {
     const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().padStart(6, '0');
     setHex(randomHex);
@@ -95,7 +93,7 @@ export default function OwnAColor() {
       overflowX: 'hidden'
     }}>
       
-      {/* 1. RÉTEG: MOZGÓ GRADIENS (EREDETI) */}
+      {/* 1. RÉTEG: MOZGÓ GRADIENS */}
       <div style={{
         position: 'fixed',
         top: 0, left: 0, right: 0, bottom: 0,
@@ -105,7 +103,7 @@ export default function OwnAColor() {
         animation: 'gradientBG 15s ease infinite'
       }} />
 
-      {/* 2. RÉTEG: KIVÁLASZTOTT SZÍN FÜGGÖNY */}
+      {/* 2. RÉTEG: SÖTÉTÍTÉS */}
       <div style={{
         position: 'fixed',
         top: 0, left: 0, right: 0, bottom: 0,
@@ -136,29 +134,31 @@ export default function OwnAColor() {
           OWN A COLOR
         </h1>
         
-        <p style={{ fontSize: '1.2rem', color: '#e2e8f0', maxWidth: '640px', margin: '0 auto 20px auto', lineHeight: '1.6', fontWeight: '500' }}>
+        {/* Value Proposition */}
+        <p style={{ fontSize: '1.2rem', color: '#e2e8f0', maxWidth: '640px', margin: '0 auto 15px auto', lineHeight: '1.6', fontWeight: '500' }}>
           The Global Registry. <span style={{ color: '#fff', fontWeight: '700' }}>16 Million Colors.</span> One Owner Each.
-          <br/> Claim your spot on the ledger forever.
         </p>
 
-        {/* BIZALMI SOR */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '20px', opacity: 0.7 }}>
-          <Info size={14} color="#cbd5e1" />
-          <span style={{ fontSize: '12px', color: '#cbd5e1' }}>Official Registry Entry • Digital Collectible Service • Not IP Rights</span>
+        {/* JOGI PAJZS - KIEMELVE (ChatGPT kérése) */}
+        <div style={{ display: 'inline-block', backgroundColor: 'rgba(0,0,0,0.3)', padding: '6px 16px', borderRadius: '20px', marginBottom: '25px', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <span style={{ fontSize: '13px', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Info size={14} /> 
+            Digital Registry Listing Only • Not Intellectual Property Rights
+          </span>
         </div>
 
-        {/* ÚJ: STATISZTIKA (Számláló) + ÁR */}
-        <div style={{ display: 'inline-flex', gap: '16px', alignItems: 'center' }}>
+        {/* STATISZTIKA + ÁR */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
           {/* Számláló */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '50px', backdropFilter: 'blur(10px)' }}>
              <Trophy size={16} color="#fbbf24" />
              <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount > 0 ? `${totalCount} Colors Claimed` : 'Registry Open'}</span>
           </div>
           
-          {/* Ár Badge */}
+          {/* Ár Badge - ÁTNEVEZVE (ChatGPT kérése) */}
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', backgroundColor: '#fbbf24', borderRadius: '50px', boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)' }}>
              <Tag size={18} color="#000" fill="#000" />
-             <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>EARLY ACCESS: $5 USD</span>
+             <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>LAUNCH PRICE: $5 USD</span>
           </div>
         </div>
       </div>
@@ -212,9 +212,8 @@ export default function OwnAColor() {
                 </button>
               </div>
               
-              {/* "What happens next" szöveg */}
-              <p style={{ textAlign: 'center', fontSize: '12px', color: '#94a3b8', marginTop: '8px' }}>
-                Instant listing on the Global Ledger immediately after payment.
+              <p style={{ textAlign: 'center', fontSize: '12px', color: '#94a3b8', marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <CheckCircle size={12} color="#4ade80" /> Instant listing on the Global Ledger.
               </p>
             </div>
           )}
@@ -227,7 +226,7 @@ export default function OwnAColor() {
         </div>
       </div>
 
-      {/* --- ÚJ: GRID GALÉRIA SZEKCIÓ --- */}
+      {/* GRID GALÉRIA */}
       <div style={{ marginTop: '100px', width: '100%', maxWidth: '1000px', marginBottom: '60px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', padding: '0 20px' }}>
           <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
@@ -237,16 +236,14 @@ export default function OwnAColor() {
           <span style={{ color: '#4ade80', fontSize: '12px', fontFamily: 'monospace', fontWeight: '700', border: '1px solid #4ade80', padding: '4px 8px', borderRadius: '4px' }}>● LIVE FEED</span>
         </div>
         
-        {/* CSS GRID RÁCS */}
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', // Automatikus rács
+          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', 
           gap: '16px', 
           padding: '0 20px' 
         }}>
           {recentSales.map((sale) => (
             <div key={sale.id} className="group" style={{ position: 'relative' }}>
-              {/* ÜVEGHATÁSÚ KÁRTYA */}
               <div style={{ 
                 backgroundColor: 'rgba(30, 41, 59, 0.6)', 
                 backdropFilter: 'blur(10px)',
@@ -262,14 +259,12 @@ export default function OwnAColor() {
               onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
               onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
-                {/* Szín blokk */}
                 <div style={{ 
                   height: '100px', 
                   backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`,
                   width: '100%'
                 }}></div>
                 
-                {/* Adatok */}
                 <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
                   <p style={{ color: '#fff', fontSize: '15px', fontWeight: '700', fontFamily: 'monospace', marginBottom: '4px', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                     {sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}
@@ -277,8 +272,6 @@ export default function OwnAColor() {
                   <p style={{ color: '#e2e8f0', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: '8px' }}>
                     {sale.owner_name || 'Anonymous'}
                   </p>
-                  
-                  {/* DÁTUM (Kérted) */}
                   <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px' }}>
                     <p style={{ color: '#94a3b8', fontSize: '10px' }}>
                       {formatDate(sale.created_at)}
@@ -297,14 +290,12 @@ export default function OwnAColor() {
           <p style={{ color: '#71717a', fontSize: '14px', marginBottom: '16px' }}>
             © 2026 Own a Color. The Exclusive Global Registry.
           </p>
-          
           <p style={{ color: '#a1a1aa', fontSize: '12px', lineHeight: '1.6', maxWidth: '672px', margin: '0 auto 32px auto' }}>
             DISCLAIMER: "Ownership" refers to a permanent entry in the Own a Color Registry database. 
             This service acts as a digital collectible registry and does not confer legal intellectual property rights, 
             trademark protection, or copyright ownership for the selected color code. 
             Purchase represents a listing service for the lifetime of the platform.
           </p>
-
           <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', fontSize: '12px', fontWeight: '500', letterSpacing: '0.05em', color: '#a1a1aa' }}>
             <a href="/terms" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#a1a1aa'}>TERMS & CONDITIONS</a>
             <a href="/privacy" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#a1a1aa'}>PRIVACY POLICY</a>
