@@ -21,7 +21,7 @@ export default function OwnAColor() {
         .from('sold_colors')
         .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(50); // Itt a limit, de görgethető lesz
       
       if (data) setRecentSales(data);
       if (count !== null) setTotalCount(count);
@@ -89,7 +89,7 @@ export default function OwnAColor() {
       alignItems: 'center', 
       padding: '60px 20px',
       position: 'relative',
-      overflowX: 'hidden'
+      overflowX: 'hidden' // Csak vízszintes görgetés tiltása
     }}>
       
       <div style={{
@@ -116,6 +116,7 @@ export default function OwnAColor() {
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
+        /* Itt a stílus, amit most már használni is fogunk a Ledger doboznál */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
@@ -147,7 +148,6 @@ export default function OwnAColor() {
              <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount} Colors Claimed</span>
           </div>
           
-          {/* DÖLT LAUNCH PRICE BADGE */}
           <div style={{ 
             display: 'inline-flex', 
             alignItems: 'center', 
@@ -243,11 +243,17 @@ export default function OwnAColor() {
           <span style={{ color: '#4ade80', fontSize: '12px', fontFamily: 'monospace', fontWeight: '700', border: '1px solid #4ade80', padding: '4px 8px', borderRadius: '4px' }}>● LIVE FEED</span>
         </div>
         
-        <div style={{ 
+        {/* SCROLLABLE LEDGER START - ITT A LÉNYEG */}
+        <div className="custom-scrollbar" style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', 
           gap: '16px', 
-          padding: '0 20px' 
+          padding: '20px',
+          maxHeight: '600px', // FIX MAGASSÁG
+          overflowY: 'auto', // GÖRGETHETŐSÉG
+          backgroundColor: 'rgba(0,0,0,0.2)', // Enyhe háttér, hogy elkülönüljön
+          borderRadius: '24px',
+          border: '1px solid rgba(255,255,255,0.05)'
         }}>
           {recentSales.map((sale) => (
             <div key={sale.id} className="group" style={{ position: 'relative' }}>
@@ -297,6 +303,7 @@ export default function OwnAColor() {
             </div>
           ))}
         </div>
+        {/* SCROLLABLE LEDGER END */}
       </div>
 
       <footer style={{ marginTop: 'auto', width: '100%', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '48px', paddingBottom: '48px' }}>
