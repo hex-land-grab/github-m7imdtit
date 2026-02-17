@@ -1,6 +1,6 @@
 'use client'
 import React from "react";
-import { Shield, Eye, ArrowLeft } from 'lucide-react';
+import { Shield, Lock, Eye, ArrowLeft } from 'lucide-react';
 
 export default function PrivacyPage() {
   return (
@@ -25,7 +25,7 @@ export default function PrivacyPage() {
             padding: "8px 16px", borderRadius: "8px", backgroundColor: "rgba(255,255,255,0.05)",
             border: "1px solid rgba(255,255,255,0.1)"
           }}>
-            <ArrowLeft size={16} /> Back to Hex Land Grab
+            <ArrowLeft size={16} /> Back to Own a Color
           </a>
         </div>
 
@@ -57,7 +57,7 @@ export default function PrivacyPage() {
             <Shield size={20} /> Summary
           </div>
           <p style={{ margin: 0, color: "#e2e8f0" }}>
-            Hex Land Grab is committed to keeping your private data private. We only collect the absolute minimum data required to record your digital ownership (Hex Code + Nickname) and to process your payment via Gumroad. 
+            <strong>Own a Color</strong> is committed to keeping your private data private. We only collect the absolute minimum data required to record your digital ownership (Hex Code + Nickname) and to process your payment via Gumroad. 
             <br/><br/>
             <strong>We do not sell your data.</strong> We do not track you across the web.
           </p>
@@ -80,52 +80,27 @@ export default function PrivacyPage() {
             <p>We use the data strictly for the following purposes:</p>
             <ul style={{ listStyleType: 'disc', paddingLeft: '20px', marginTop: '10px' }}>
               <li>To record and verify your ownership of a specific Hex Color.</li>
-              <li>To display your ownership on the global &quot;Hex Land Grab&quot; public ledger.</li>
+              <li>To display your ownership on the global <strong>Own a Color</strong> public ledger.</li>
               <li>To prevent fraud (e.g. preventing the same color from being bought twice).</li>
               <li>To send you transactional emails (receipts) via Gumroad.</li>
             </ul>
           </section>
 
           <section>
-            <h2 style={{ color: "#fff", fontSize: "1.5rem", fontWeight: "700", marginBottom: "10px" }}>3. Third-Party Services (Trusted Partners)</h2>
-            <p>We rely on trusted third-party infrastructure to operate. By using our service, you acknowledge that your data flows through:</p>
-            <div style={{ display: 'grid', gap: '15px', marginTop: '15px' }}>
-              <div style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '8px' }}>
-                <strong style={{ color: '#fff' }}>Gumroad:</strong> Handles all payments and emailing. Please review <a href="https://gumroad.com/privacy" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6' }}>Gumroad&apos;s Privacy Policy</a>.
-              </div>
-              <div style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '8px' }}>
-                <strong style={{ color: '#fff' }}>Supabase:</strong> Our secure database provider where the ownership records are stored.
-              </div>
-              <div style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '8px' }}>
-                <strong style={{ color: '#fff' }}>Vercel:</strong> Our hosting provider, which may collect anonymous technical logs (IP addresses) for security and performance monitoring.
-              </div>
-            </div>
-          </section>
-
-          <section>
-            <h2 style={{ color: "#fff", fontSize: "1.5rem", fontWeight: "700", marginBottom: "10px" }}>4. Public Visibility (The Ledger)</h2>
+            <h2 style={{ color: "#fff", fontSize: "1.5rem", fontWeight: "700", marginBottom: "10px" }}>3. Public Visibility (The Ledger)</h2>
             <div style={{ display: 'flex', gap: '15px', alignItems: 'flex-start', backgroundColor: 'rgba(251, 191, 36, 0.1)', padding: '15px', borderRadius: '8px', border: '1px solid rgba(251, 191, 36, 0.3)' }}>
               <Eye size={24} color="#fbbf24" style={{ flexShrink: 0 }} />
               <div>
                 <strong style={{ color: '#fbbf24' }}>Important Note:</strong>
                 <p style={{ margin: '5px 0 0 0', fontSize: '14px' }}>
-                  The &quot;Hex Land Grab&quot; project is a public registry. The <strong>Nickname</strong> you provide at checkout will be publicly visible to anyone visiting the site. Do not use your real name or sensitive personal information if you wish to remain anonymous.
+                  The <strong>Own a Color</strong> project is a public registry. The <strong>Nickname</strong> you provide at checkout will be publicly visible to anyone visiting the site. Do not use your real name or sensitive personal information if you wish to remain anonymous.
                 </p>
               </div>
             </div>
           </section>
 
           <section>
-            <h2 style={{ color: "#fff", fontSize: "1.5rem", fontWeight: "700", marginBottom: "10px" }}>5. Data Retention & Deletion</h2>
-            <p>
-              We retain the public record of ownership indefinitely as part of the service (&quot;Forever Ownership&quot;). 
-              However, if you wish to have your data removed, you may contact us. 
-              <strong>Please note:</strong> Deleting your data will result in the forfeiture of your Hex Color claim, as the record effectively ceases to exist.
-            </p>
-          </section>
-
-          <section>
-            <h2 style={{ color: "#fff", fontSize: "1.5rem", fontWeight: "700", marginBottom: "10px" }}>6. Contact Us</h2>
+            <h2 style={{ color: "#fff", fontSize: "1.5rem", fontWeight: "700", marginBottom: "10px" }}>4. Contact Us</h2>
             <p>
               If you have questions about this Privacy Policy, please contact the site operator via the Gumroad contact form or at the email address provided on your receipt.
             </p>
