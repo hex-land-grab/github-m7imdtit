@@ -27,23 +27,29 @@ export async function POST(req: Request) {
       ''
     ).toString().trim();
 
-    // 2. NÉV KINYERÉSE (Biztonságos!)
-    // Megkeressük a Nickname mezőt. Ha nincs, akkor "Anonymous"-t mentünk.
-    // SOHA ne mentsük az emailt publikus névként!
+    // 2. NÉV KINYERÉSE
     let ownerName = (
         payload['Nickname'] || 
         payload['custom_fields[Nickname]'] || 
         'Anonymous'
     ).toString().trim();
 
-    // Ha véletlenül üres lenne, legyen Anonymous
     if (ownerName === '') ownerName = 'Anonymous';
+
+    // 3. VÁROS KINYERÉSE (ÚJ!)
+    let city = (
+        payload['City'] || 
+        payload['custom_fields[City]'] || 
+        payload['Your City'] || 
+        payload['custom_fields[Your City]'] || 
+        ''
+    ).toString().trim();
 
     if (!hexRaw) {
       return NextResponse.json({ error: 'Missing Hex code' }, { status: 200 });
     }
 
-    // 3. NORMALIZÁLÁS
+    // 4. NORMALIZÁLÁS
     let hexNormalized = hexRaw.toUpperCase();
     if (!hexNormalized.startsWith('#')) {
       hexNormalized = `#${hexNormalized}`;
@@ -53,13 +59,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid Hex format' }, { status: 200 });
     }
 
-    // 4. MENTÉS
+    // 5. MENTÉS (City hozzáadva!)
     const { error } = await supabase
       .from('sold_colors')
       .insert([
         { 
           hex_code: hexNormalized, 
-          owner_name: ownerName, // Itt most már a biztonságos Nickname kerül be
+          owner_name: ownerName,
+          city: city, // Itt mentjük el a várost az adatbázisba
           purchase_price: payload.price_usd || 5
         }
       ]);
