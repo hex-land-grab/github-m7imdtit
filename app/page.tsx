@@ -147,7 +147,17 @@ export default function OwnAColor() {
              <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount} Colors Claimed</span>
           </div>
           
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', backgroundColor: '#fbbf24', borderRadius: '50px', boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)' }}>
+          {/* DÖLT LAUNCH PRICE BADGE */}
+          <div style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            padding: '10px 24px', 
+            backgroundColor: '#fbbf24', 
+            borderRadius: '50px', 
+            boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)',
+            transform: 'rotate(-3deg)' 
+          }}>
              <Tag size={18} color="#000" fill="#000" />
              <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>LAUNCH PRICE: $5 USD</span>
           </div>
@@ -266,9 +276,17 @@ export default function OwnAColor() {
                   <p style={{ color: '#fff', fontSize: '15px', fontWeight: '700', fontFamily: 'monospace', marginBottom: '4px', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
                     {sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}
                   </p>
+                  
+                  {/* CITY FEJLESZTÉS: Név + Város */}
                   <p style={{ color: '#e2e8f0', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: '8px' }}>
                     {sale.owner_name || 'Anonymous'}
+                    {sale.city && (
+                      <span style={{ opacity: 0.7, marginLeft: '4px' }}>
+                        • {sale.city}
+                      </span>
+                    )}
                   </p>
+
                   <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px' }}>
                     <p style={{ color: '#94a3b8', fontSize: '10px' }}>
                       {formatDate(sale.created_at)}
