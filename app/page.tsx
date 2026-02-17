@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info, Trophy, CheckCircle } from 'lucide-react'
+import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info, Trophy, CheckCircle, Lock } from 'lucide-react'
 
 // Környezeti változók
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -134,40 +134,41 @@ export default function OwnAColor() {
           OWN A COLOR
         </h1>
         
-        {/* Value Proposition */}
         <p style={{ fontSize: '1.2rem', color: '#e2e8f0', maxWidth: '640px', margin: '0 auto 15px auto', lineHeight: '1.6', fontWeight: '500' }}>
           The Global Registry. <span style={{ color: '#fff', fontWeight: '700' }}>16 Million Colors.</span> One Owner Each.
         </p>
 
-        {/* JOGI PAJZS - KIEMELVE (ChatGPT kérése) */}
+        {/* JOGI PAJZS */}
         <div style={{ display: 'inline-block', backgroundColor: 'rgba(0,0,0,0.3)', padding: '6px 16px', borderRadius: '20px', marginBottom: '25px', border: '1px solid rgba(255,255,255,0.1)' }}>
           <span style={{ fontSize: '13px', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Info size={14} /> 
-            Digital Registry Listing Only • Not Intellectual Property Rights
+            Registry Listing Only • Not Intellectual Property Rights
           </span>
         </div>
 
-        {/* STATISZTIKA + ÁR */}
+        {/* STATISZTIKA + CTA BADGE */}
         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-          {/* Számláló */}
+          {/* OKOS SZÁMLÁLÓ: Ha kevés a user, "GENESIS STAGE"-t ír */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '50px', backdropFilter: 'blur(10px)' }}>
              <Trophy size={16} color="#fbbf24" />
-             <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount > 0 ? `${totalCount} Colors Claimed` : 'Registry Open'}</span>
+             <span style={{ fontWeight: '700', fontSize: '14px' }}>
+               {totalCount > 100 ? `${totalCount} Colors Claimed` : 'GENESIS STAGE'}
+             </span>
           </div>
           
-          {/* Ár Badge - ÁTNEVEZVE (ChatGPT kérése) */}
+          {/* CTA BADGE - Átnevezve cselekvésre */}
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', backgroundColor: '#fbbf24', borderRadius: '50px', boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)' }}>
              <Tag size={18} color="#000" fill="#000" />
-             <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>LAUNCH PRICE: $5 USD</span>
+             <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>START CLAIMING: $5</span>
           </div>
         </div>
       </div>
       
-      {/* MAIN CARD */}
-      <div style={{ backgroundColor: 'rgba(30, 41, 59, 0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '50px', borderRadius: '32px', width: '100%', maxWidth: '600px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', position: 'relative', zIndex: 10 }}>
+      {/* MAIN CARD - A "GÉP" */}
+      <div style={{ backgroundColor: 'rgba(30, 41, 59, 0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '40px', borderRadius: '32px', width: '100%', maxWidth: '550px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', position: 'relative', zIndex: 10 }}>
         
-        {/* KERESŐ + RANDOM GOMB */}
-        <div style={{ position: 'relative', marginBottom: '30px', display: 'flex', gap: '10px' }}>
+        {/* INPUT + SHUFFLE */}
+        <div style={{ position: 'relative', marginBottom: '20px', display: 'flex', gap: '10px' }}>
           <div style={{ position: 'relative', flexGrow: 1 }}>
             <Search style={{ position: 'absolute', left: '20px', top: '22px', color: '#cbd5e1', width: '20px', height: '20px' }} />
             <input type="text" value={hex} onChange={(e) => checkColor(e.target.value)} placeholder="Search Hex (e.g. FF0055)"
@@ -186,48 +187,67 @@ export default function OwnAColor() {
           </button>
         </div>
 
-        <div style={{ minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        {/* EREDMÉNY TERÜLET (Dinamikus) */}
+        <div style={{ minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          
+          {/* 1. ÜRES ÁLLAPOT */}
           {status === 'idle' && (
             <div style={{textAlign: 'center', color: '#cbd5e1'}}>
               <p style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>Enter 6 characters OR click Shuffle.</p>
               <p style={{ fontSize: '12px', opacity: 0.6 }}>Find your unique color in the registry.</p>
             </div>
           )}
+          
+          {/* 2. TÖLTÉS */}
           {status === 'checking' && <Loader2 className="animate-spin" style={{ color: '#fff', width: '32px', height: '32px' }} />}
           
+          {/* 3. ELÉRHETŐ (EZ A PÉNZCSINÁLÓ RÉSZ) */}
           {status === 'available' && hex.length === 6 && (
-            <div className="animate-in fade-in zoom-in duration-300 w-full" style={{ width: '100%' }}>
-              <div style={{ width: '100%', height: '110px', backgroundColor: `#${hex}`, borderRadius: '20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 0 50px -10px #${hex}`, border: '2px solid rgba(255,255,255,0.4)' }}>
-                 <span style={{ color: parseInt(hex, 16) > 0xffffff / 2 ? '#000' : '#fff', fontWeight: '900', fontSize: '32px', letterSpacing: '2px', textShadow: parseInt(hex, 16) > 0xffffff / 2 ? 'none' : '0 2px 10px rgba(0,0,0,0.5)' }}>#{hex}</span>
+            <div className="animate-in fade-in zoom-in duration-300 w-full">
+              {/* CERTIFICATE PREVIEW CARD */}
+              <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '6px', marginBottom: '16px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.3)', position: 'relative', overflow: 'hidden' }}>
+                 <div style={{ backgroundColor: `#${hex}`, borderRadius: '12px', height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', position: 'relative' }}>
+                    <span style={{ color: parseInt(hex, 16) > 0xffffff / 2 ? '#000' : '#fff', fontWeight: '900', fontSize: '24px', letterSpacing: '2px', zIndex: 2 }}>#{hex}</span>
+                    <div style={{ position: 'absolute', bottom: '10px', color: parseInt(hex, 16) > 0xffffff / 2 ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)', fontSize: '10px', fontWeight: '700', textTransform: 'uppercase' }}>
+                      OFFICIAL CERTIFICATE
+                    </div>
+                 </div>
               </div>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', marginBottom: '10px' }}>
-                <a href={getGumroadUrl()} style={{ background: '#fff', color: '#000', padding: '18px', borderRadius: '16px', textDecoration: 'none', fontWeight: '800', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 0 20px rgba(255,255,255,0.4)', transition: 'transform 0.2s' }}
+              {/* NAGY GOMB */}
+              <a href={getGumroadUrl()} style={{ background: '#3b82f6', color: '#fff', padding: '20px', borderRadius: '16px', textDecoration: 'none', fontWeight: '800', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 4px 20px rgba(59, 130, 246, 0.5)', transition: 'transform 0.2s', width: '100%' }}
                   onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
-                  CLAIM NOW ($5) <ExternalLink size={20}/>
-                </a>
-                <button onClick={shareOnX} style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.3)', padding: '0 24px', borderRadius: '16px', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}>
-                  <Twitter size={24} />
-                </button>
-              </div>
+                  CLAIM #{hex} NOW <ExternalLink size={24}/>
+              </a>
               
-              <p style={{ textAlign: 'center', fontSize: '12px', color: '#94a3b8', marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                <CheckCircle size={12} color="#4ade80" /> Instant listing on the Global Ledger.
-              </p>
+              {/* Trust Microcopy */}
+              <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#94a3b8' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><CheckCircle size={12} color="#4ade80"/> Instant Registry Entry</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><CheckCircle size={12} color="#4ade80"/> Certificate Included</span>
+              </div>
             </div>
           )}
+
+          {/* 4. FOGLALT */}
           {status === 'taken' && (
-            <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#fca5a5', padding: '24px', borderRadius: '20px', width: '100%', textAlign: 'center' }}>
-              <p style={{ fontWeight: '800', fontSize: '20px', color: '#fff', marginBottom: '5px' }}>LOCKED 🔒</p>
-              <p style={{ fontSize: '14px', color: '#fff' }}>This color is already owned by someone else.</p>
+            <div style={{ width: '100%', textAlign: 'center' }}>
+              <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px dashed #ef4444', padding: '20px', borderRadius: '16px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+                  <Lock size={20} color="#fca5a5" />
+                  <span style={{ color: '#fca5a5', fontWeight: '800', fontSize: '18px' }}>LOCKED</span>
+                </div>
+                <p style={{ color: '#e2e8f0', fontSize: '14px' }}>This color is already owned by someone else.</p>
+              </div>
+              <button onClick={generateRandomColor} style={{ color: '#cbd5e1', fontSize: '14px', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}>
+                Find another color
+              </button>
             </div>
           )}
         </div>
       </div>
 
       {/* GRID GALÉRIA */}
-      <div style={{ marginTop: '100px', width: '100%', maxWidth: '1000px', marginBottom: '60px' }}>
+      <div style={{ marginTop: '80px', width: '100%', maxWidth: '1000px', marginBottom: '60px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', padding: '0 20px' }}>
           <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
              <Globe size={20} color="#fff"/>
