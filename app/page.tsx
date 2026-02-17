@@ -16,7 +16,6 @@ export default function HexLandGrab() {
 
   useEffect(() => {
     const fetchSales = async () => {
-      // 20-ra állítottam a limitet a lista miatt
       const { data } = await supabase.from('sold_colors').select('*').order('created_at', { ascending: false }).limit(20);
       if (data) setRecentSales(data);
     };
@@ -49,7 +48,6 @@ export default function HexLandGrab() {
 
   const getGumroadUrl = () => {
     const params = new URLSearchParams({
-      // wanted: "true",  <-- KIKAPCSOLVA (A biztonságos termékoldalra visz)
       SelectedHex: hex.replace('#', '').toUpperCase()
     });
     return `${G_LINK}?${params.toString()}`;
@@ -61,7 +59,6 @@ export default function HexLandGrab() {
     window.open(url, '_blank');
   }
 
-  // Segédfüggvény a dátum formázásához
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -80,14 +77,14 @@ export default function HexLandGrab() {
       padding: '60px 20px',
     }}>
       
-      {/* HEADER - TISZTÍTVA (Nincs verziószám) */}
+      {/* HEADER */}
       <div style={{ textAlign: 'center', marginBottom: '50px', maxWidth: '800px', zIndex: 10 }}>
         
         <h1 style={{ 
           fontSize: '4.5rem', 
           fontWeight: '900', 
           marginBottom: '20px', 
-          marginTop: '20px', // Kicsit lejjebb hozzuk, mert kivettük a badget
+          marginTop: '20px',
           letterSpacing: '-2px',
           lineHeight: '1',
           textShadow: '0 0 40px rgba(255,255,255,0.1)'
@@ -227,4 +224,98 @@ export default function HexLandGrab() {
 
       {/* NEW LIST VIEW SECTION */}
       <div style={{ marginTop: '100px', width: '100%', maxWidth: '700px', marginBottom: '60px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px' }}>
+          <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>OWNERSHIP LEDGER</h3>
+          <span style={{ color: '#94a3b8', fontSize: '14px', fontFamily: 'monospace' }}>● LIVE FEED</span>
+        </div>
+        
+        {/* LIST CONTAINER */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {recentSales.map((sale) => (
+            <div key={sale.id} className="group" style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              backgroundColor: '#1f2937', 
+              padding: '16px', 
+              borderRadius: '16px', 
+              border: '1px solid rgba(255,255,255,0.05)',
+              transition: 'transform 0.2s, background-color 0.2s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = '#2d3748';
+              e.currentTarget.style.transform = 'scale(1.01)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = '#1f2937';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                {/* COLOR BOX */}
+                <div style={{ 
+                  width: '50px', 
+                  height: '50px', 
+                  backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`, 
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                  border: '1px solid rgba(255,255,255,0.1)'
+                }}></div>
+                
+                {/* INFO */}
+                <div>
+                  <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '18px', fontFamily: 'monospace', letterSpacing: '1px' }}>
+                    {sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}
+                  </div>
+                  <div style={{ color: '#9ca3af', fontSize: '13px' }}>
+                    Owned by <span style={{ color: '#e2e8f0', fontWeight: '600' }}>{sale.owner_name || 'Anonymous'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* DATE */}
+              <div style={{ color: '#6b7280', fontSize: '12px', textAlign: 'right', fontWeight: '500' }}>
+                {formatDate(sale.created_at)}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <div style={{ 
+        marginTop: 'auto', 
+        borderTop: '1px solid rgba(255,255,255,0.1)', 
+        paddingTop: '30px', 
+        paddingBottom: '40px',
+        width: '100%', 
+        textAlign: 'center' 
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', alignItems: 'center' }}>
+          
+          <a href="/terms" 
+             style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px', fontWeight: '500', transition: 'color 0.2s' }} 
+             onMouseOver={(e) => e.currentTarget.style.color = '#fff'} 
+             onMouseOut={(e) => e.currentTarget.style.color = '#64748b'}>
+            Terms & Conditions
+          </a>
+
+          <span style={{ color: '#334155' }}>|</span>
+
+          <a href="/privacy" 
+             style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px', fontWeight: '500', transition: 'color 0.2s' }} 
+             onMouseOver={(e) => e.currentTarget.style.color = '#fff'} 
+             onMouseOut={(e) => e.currentTarget.style.color = '#64748b'}>
+            Privacy Policy
+          </a>
+
+        </div>
+        
+        <p style={{ marginTop: '15px', fontSize: '12px', color: '#475569' }}>
+          &copy; 2026 Hex Land Grab. All rights reserved.
+        </p>
+      </div>
+
+    </div>
+  )
+}
