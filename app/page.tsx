@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe } from 'lucide-react'
+import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info } from 'lucide-react'
 
 // Környezeti változók
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -33,7 +33,7 @@ export default function OwnAColor() {
     return () => { supabase.removeChannel(channel); }
   }, []);
 
-  // --- ÚJ FUNKCIÓ: VÉLETLEN SZÍN GENERÁTOR ---
+  // VÉLETLEN SZÍN GENERÁTOR
   const generateRandomColor = () => {
     const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().padStart(6, '0');
     setHex(randomHex);
@@ -117,24 +117,30 @@ export default function OwnAColor() {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
       `}</style>
 
-      {/* --- MÓDOSÍTOTT HEADER (Jobb szövegek) --- */}
+      {/* HEADER - FRISSÍTETT BIZALMI SZÖVEGEKKEL */}
       <div style={{ textAlign: 'center', marginBottom: '40px', maxWidth: '800px', zIndex: 10 }}>
         <h1 style={{ 
-          fontSize: '4.5rem', fontWeight: '900', marginBottom: '15px', marginTop: '20px', letterSpacing: '-2px', lineHeight: '1',
+          fontSize: '4.5rem', fontWeight: '900', marginBottom: '10px', marginTop: '20px', letterSpacing: '-2px', lineHeight: '1',
           background: 'linear-gradient(to right, #fff, #cbd5e1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
           filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.3))'
         }}>
           OWN A COLOR
         </h1>
         
-        {/* Value Proposition - A "Miért" */}
-        <p style={{ fontSize: '1.2rem', color: '#e2e8f0', maxWidth: '600px', margin: '0 auto 25px auto', lineHeight: '1.6', fontWeight: '500' }}>
+        {/* Value Proposition + Trust Defender */}
+        <p style={{ fontSize: '1.2rem', color: '#e2e8f0', maxWidth: '640px', margin: '0 auto 20px auto', lineHeight: '1.6', fontWeight: '500' }}>
           The Global Registry. <span style={{ color: '#fff', fontWeight: '700' }}>16 Million Colors.</span> One Owner Each.
-          <br/> Claim yours before it's gone forever.
+          <br/> Claim your spot on the ledger forever.
         </p>
 
-        {/* Árcédula Badge - Kicsit hangsúlyosabb */}
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', backgroundColor: '#fbbf24', borderRadius: '50px', boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)', marginTop: '5px', transform: 'rotate(-2deg)' }}>
+        {/* Apró betűs, de látható "Trust" szöveg above-the-fold */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '20px', opacity: 0.7 }}>
+          <Info size={14} color="#cbd5e1" />
+          <span style={{ fontSize: '12px', color: '#cbd5e1' }}>Official Registry Entry • Digital Collectible Service • Not IP Rights</span>
+        </div>
+
+        {/* Árcédula Badge */}
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', backgroundColor: '#fbbf24', borderRadius: '50px', boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)', transform: 'rotate(-2deg)' }}>
           <Tag size={18} color="#000" fill="#000" />
           <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>EARLY ACCESS: $5 USD</span>
         </div>
@@ -143,7 +149,7 @@ export default function OwnAColor() {
       {/* MAIN CARD */}
       <div style={{ backgroundColor: 'rgba(30, 41, 59, 0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '50px', borderRadius: '32px', width: '100%', maxWidth: '600px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', position: 'relative', zIndex: 10 }}>
         
-        {/* --- KERESŐ + RANDOM GOMB --- */}
+        {/* KERESŐ + RANDOM GOMB */}
         <div style={{ position: 'relative', marginBottom: '30px', display: 'flex', gap: '10px' }}>
           <div style={{ position: 'relative', flexGrow: 1 }}>
             <Search style={{ position: 'absolute', left: '20px', top: '22px', color: '#cbd5e1', width: '20px', height: '20px' }} />
@@ -152,7 +158,6 @@ export default function OwnAColor() {
             />
           </div>
           
-          {/* ÚJ: SURPRISE ME GOMB */}
           <button onClick={generateRandomColor} title="Surprise Me!" style={{ 
             backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.2)', 
             borderRadius: '16px', width: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -168,17 +173,18 @@ export default function OwnAColor() {
           {status === 'idle' && (
             <div style={{textAlign: 'center', color: '#cbd5e1'}}>
               <p style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>Enter 6 characters OR click Shuffle.</p>
-              <p style={{ fontSize: '12px', opacity: 0.6 }}>Find your spot in the registry.</p>
+              <p style={{ fontSize: '12px', opacity: 0.6 }}>Find your unique color in the registry.</p>
             </div>
           )}
           {status === 'checking' && <Loader2 className="animate-spin" style={{ color: '#fff', width: '32px', height: '32px' }} />}
           
           {status === 'available' && hex.length === 6 && (
             <div className="animate-in fade-in zoom-in duration-300 w-full" style={{ width: '100%' }}>
-              <div style={{ width: '100%', height: '110px', backgroundColor: `#${hex}`, borderRadius: '20px', marginBottom: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 0 50px -10px #${hex}`, border: '2px solid rgba(255,255,255,0.4)' }}>
+              <div style={{ width: '100%', height: '110px', backgroundColor: `#${hex}`, borderRadius: '20px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 0 50px -10px #${hex}`, border: '2px solid rgba(255,255,255,0.4)' }}>
                  <span style={{ color: parseInt(hex, 16) > 0xffffff / 2 ? '#000' : '#fff', fontWeight: '900', fontSize: '32px', letterSpacing: '2px', textShadow: parseInt(hex, 16) > 0xffffff / 2 ? 'none' : '0 2px 10px rgba(0,0,0,0.5)' }}>#{hex}</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px' }}>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', marginBottom: '10px' }}>
                 <a href={getGumroadUrl()} style={{ background: '#fff', color: '#000', padding: '18px', borderRadius: '16px', textDecoration: 'none', fontWeight: '800', fontSize: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 0 20px rgba(255,255,255,0.4)', transition: 'transform 0.2s' }}
                   onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
                   CLAIM NOW ($5) <ExternalLink size={20}/>
@@ -188,12 +194,17 @@ export default function OwnAColor() {
                   <Twitter size={24} />
                 </button>
               </div>
+              
+              {/* "What happens next" szöveg */}
+              <p style={{ textAlign: 'center', fontSize: '12px', color: '#94a3b8', marginTop: '8px' }}>
+                Instant listing on the Global Ledger immediately after payment.
+              </p>
             </div>
           )}
           {status === 'taken' && (
             <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#fca5a5', padding: '24px', borderRadius: '20px', width: '100%', textAlign: 'center' }}>
               <p style={{ fontWeight: '800', fontSize: '20px', color: '#fff', marginBottom: '5px' }}>LOCKED 🔒</p>
-              <p style={{ fontSize: '14px', color: '#fff' }}>This color is already owned.</p>
+              <p style={{ fontSize: '14px', color: '#fff' }}>This color is already owned by someone else.</p>
             </div>
           )}
         </div>
@@ -227,7 +238,7 @@ export default function OwnAColor() {
         </div>
       </div>
 
-      {/* --- JOGI VÉDELMI LÁBLÉC (Megtartva) --- */}
+      {/* FOOTER */}
       <footer style={{ marginTop: 'auto', width: '100%', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '48px', paddingBottom: '48px' }}>
         <div style={{ maxWidth: '896px', margin: '0 auto', padding: '0 16px' }}>
           <p style={{ color: '#71717a', fontSize: '14px', marginBottom: '16px' }}>
