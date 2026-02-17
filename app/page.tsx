@@ -295,10 +295,38 @@ export default function HexLandGrab() {
         </div>
       </div>
 
-      <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '30px', width: '100%', textAlign: 'center' }}>
-        <a href="/terms" style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px', fontWeight: '500', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#64748b'}>
-          Terms & Conditions / Legal Disclaimer
-        </a>
+      {/* FOOTER - MOST MÁR KÉT LINKKEL */}
+      <div style={{ 
+        marginTop: 'auto', 
+        borderTop: '1px solid rgba(255,255,255,0.1)', 
+        paddingTop: '30px', 
+        paddingBottom: '40px',
+        width: '100%', 
+        textAlign: 'center' 
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', alignItems: 'center' }}>
+          
+          <a href="/terms" 
+             style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px', fontWeight: '500', transition: 'color 0.2s' }} 
+             onMouseOver={(e) => e.currentTarget.style.color = '#fff'} 
+             onMouseOut={(e) => e.currentTarget.style.color = '#64748b'}>
+            Terms & Conditions
+          </a>
+
+          <span style={{ color: '#334155' }}>|</span>
+
+          <a href="/privacy" 
+             style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px', fontWeight: '500', transition: 'color 0.2s' }} 
+             onMouseOver={(e) => e.currentTarget.style.color = '#fff'} 
+             onMouseOut={(e) => e.currentTarget.style.color = '#64748b'}>
+            Privacy Policy
+          </a>
+
+        </div>
+        
+        <p style={{ marginTop: '15px', fontSize: '12px', color: '#475569' }}>
+          &copy; 2026 Hex Land Grab. All rights reserved.
+        </p>
       </div>
 
     </div>
