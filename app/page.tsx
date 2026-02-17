@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { Search, Loader2, Twitter, ExternalLink, Zap } from 'lucide-react'
+import { Search, Loader2, Twitter, ExternalLink } from 'lucide-react'
 
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -49,10 +49,7 @@ export default function HexLandGrab() {
 
   const getGumroadUrl = () => {
     const params = new URLSearchParams({
-      // TÖRÖLTÜK A "wanted: true" sort!
-      // wanted: "true",  <-- Ez volt a gyorsvásárlás, most kivettük.
-      
-      // A Hex kód továbbra is átmegy, ez nagyon fontos!
+      // wanted: "true",  <-- KIKAPCSOLVA (A biztonságos termékoldalra visz)
       SelectedHex: hex.replace('#', '').toUpperCase()
     });
     return `${G_LINK}?${params.toString()}`;
@@ -83,21 +80,14 @@ export default function HexLandGrab() {
       padding: '60px 20px',
     }}>
       
-      {/* HEADER */}
+      {/* HEADER - TISZTÍTVA (Nincs verziószám) */}
       <div style={{ textAlign: 'center', marginBottom: '50px', maxWidth: '800px', zIndex: 10 }}>
-        <div style={{ 
-          display: 'inline-flex', alignItems: 'center', gap: '8px', 
-          backgroundColor: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
-          color: '#e2e8f0', padding: '6px 16px', borderRadius: '20px', marginBottom: '24px', 
-          fontSize: '13px', fontWeight: '500', backdropFilter: 'blur(5px)'
-        }}>
-          <Zap size={14} fill="#fbbf24" color="#fbbf24" /> V14: Ownership Ledger
-        </div>
         
         <h1 style={{ 
           fontSize: '4.5rem', 
           fontWeight: '900', 
           marginBottom: '20px', 
+          marginTop: '20px', // Kicsit lejjebb hozzuk, mert kivettük a badget
           letterSpacing: '-2px',
           lineHeight: '1',
           textShadow: '0 0 40px rgba(255,255,255,0.1)'
@@ -237,98 +227,4 @@ export default function HexLandGrab() {
 
       {/* NEW LIST VIEW SECTION */}
       <div style={{ marginTop: '100px', width: '100%', maxWidth: '700px', marginBottom: '60px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px' }}>
-          <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>OWNERSHIP LEDGER</h3>
-          <span style={{ color: '#94a3b8', fontSize: '14px', fontFamily: 'monospace' }}>● LIVE FEED</span>
-        </div>
-        
-        {/* LIST CONTAINER */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {recentSales.map((sale) => (
-            <div key={sale.id} className="group" style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between',
-              backgroundColor: '#1f2937', 
-              padding: '16px', 
-              borderRadius: '16px', 
-              border: '1px solid rgba(255,255,255,0.05)',
-              transition: 'transform 0.2s, background-color 0.2s'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.backgroundColor = '#2d3748';
-              e.currentTarget.style.transform = 'scale(1.01)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = '#1f2937';
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                {/* COLOR BOX */}
-                <div style={{ 
-                  width: '50px', 
-                  height: '50px', 
-                  backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`, 
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-                  border: '1px solid rgba(255,255,255,0.1)'
-                }}></div>
-                
-                {/* INFO */}
-                <div>
-                  <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '18px', fontFamily: 'monospace', letterSpacing: '1px' }}>
-                    {sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}
-                  </div>
-                  <div style={{ color: '#9ca3af', fontSize: '13px' }}>
-                    Owned by <span style={{ color: '#e2e8f0', fontWeight: '600' }}>{sale.owner_name || 'Anonymous'}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* DATE */}
-              <div style={{ color: '#6b7280', fontSize: '12px', textAlign: 'right', fontWeight: '500' }}>
-                {formatDate(sale.created_at)}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* FOOTER - MOST MÁR KÉT LINKKEL */}
-      <div style={{ 
-        marginTop: 'auto', 
-        borderTop: '1px solid rgba(255,255,255,0.1)', 
-        paddingTop: '30px', 
-        paddingBottom: '40px',
-        width: '100%', 
-        textAlign: 'center' 
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', alignItems: 'center' }}>
-          
-          <a href="/terms" 
-             style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px', fontWeight: '500', transition: 'color 0.2s' }} 
-             onMouseOver={(e) => e.currentTarget.style.color = '#fff'} 
-             onMouseOut={(e) => e.currentTarget.style.color = '#64748b'}>
-            Terms & Conditions
-          </a>
-
-          <span style={{ color: '#334155' }}>|</span>
-
-          <a href="/privacy" 
-             style={{ color: '#64748b', textDecoration: 'none', fontSize: '14px', fontWeight: '500', transition: 'color 0.2s' }} 
-             onMouseOver={(e) => e.currentTarget.style.color = '#fff'} 
-             onMouseOut={(e) => e.currentTarget.style.color = '#64748b'}>
-            Privacy Policy
-          </a>
-
-        </div>
-        
-        <p style={{ marginTop: '15px', fontSize: '12px', color: '#475569' }}>
-          &copy; 2026 Hex Land Grab. All rights reserved.
-        </p>
-      </div>
-
-    </div>
-  )
-}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid
