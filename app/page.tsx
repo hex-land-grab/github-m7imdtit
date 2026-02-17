@@ -15,7 +15,7 @@ export default function OwnAColor() {
   const [recentSales, setRecentSales] = useState<any[]>([])
   
   // ITT AZ ÚJ "ULTRA RAINBOW" HÁTTÉR (7 Szín!)
-  const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ff0000, #ffa500, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff)');
+  const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #00008B, #8B008B, #228B22, #DC143C, #0000ff, #4b0082, #8f00ff)');
 
   useEffect(() => {
     const fetchSales = async () => {
