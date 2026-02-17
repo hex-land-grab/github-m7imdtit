@@ -14,9 +14,7 @@ export default function OwnAColor() {
   const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
   const [recentSales, setRecentSales] = useState<any[]>([])
   
-  // A 4 SZÍNŰ ELEGÁNS GRADIENS (Alapértelmezett)
-  const defaultGradient = 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)';
-  const [bgStyle, setBgStyle] = useState<string>(defaultGradient);
+  // A bgStyle state-et TÖRÖLTÜK, mert a rétegelt megoldásnál nem kell!
 
   useEffect(() => {
     const fetchSales = async () => {
@@ -40,20 +38,8 @@ export default function OwnAColor() {
     const clean = val.replace(/[^0-9A-F]/gi, '').toUpperCase().slice(0, 6);
     setHex(clean);
 
-    // LOGIKA JAVÍTVA:
-    // Csak akkor nyúlunk a háttérhez, ha tényleg muszáj. Így nem akad meg az animáció írás közben.
-    
-    if (clean.length === 6) {
-       // Ha megvan a 6 karakter, beállítjuk a specifikus színt
-       setBgStyle(`radial-gradient(circle at center, #${clean}, #000000)`);
-    } else {
-       // Ha nincs meg a 6 karakter (tehát 0-5 között vagyunk)...
-       // ...akkor csak akkor állítjuk vissza, ha EDDIG nem a gradiens volt.
-       // Ezzel megakadályozzuk, hogy minden betűnél újratöltse a hátteret.
-       if (!bgStyle.includes('linear-gradient')) {
-          setBgStyle(defaultGradient);
-       }
-    }
+    // ITT MÁR NEM KELL HÁTTÉR LOGIKA! Csak az adatot kezeljük.
+    // A megjelenítést a lentebbi HTML (JSX) rész intézi automatikusan.
 
     if (clean.length !== 6) { setStatus('idle'); return; }
 
@@ -86,10 +72,6 @@ export default function OwnAColor() {
 
   return (
     <div style={{ 
-      background: bgStyle,
-      backgroundSize: '400% 400%',
-      // Az animáció fut, amíg nincs kiválasztva konkrét szín (length != 6)
-      animation: hex.length === 6 ? 'none' : 'gradientBG 15s ease infinite', 
       minHeight: '100vh', 
       color: '#fff', 
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -97,9 +79,33 @@ export default function OwnAColor() {
       flexDirection: 'column', 
       alignItems: 'center', 
       padding: '60px 20px',
-      transition: 'background 0.8s ease' // Finom átmenet a színek között
+      position: 'relative', // Fontos a rétegek miatt
+      overflow: 'hidden'    // Hogy ne lógjon ki semmi
     }}>
       
+      {/* 1. RÉTEG: A MOZGÓ GRADIENS (Mindig ott van alul) */}
+      <div style={{
+        position: 'fixed',
+        top: 0, left: 0, right: 0, bottom: 0,
+        zIndex: -2, // Legalul
+        background: 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
+        backgroundSize: '400% 400%',
+        animation: 'gradientBG 15s ease infinite'
+      }} />
+
+      {/* 2. RÉTEG: A KIVÁLASZTOTT SZÍN (Ráúszik a gradiensre) */}
+      <div style={{
+        position: 'fixed',
+        top: 0, left: 0, right: 0, bottom: 0,
+        zIndex: -1, // A gradiens felett, de a tartalom alatt
+        // Ha megvan a 6 karakter, akkor megkapja a színt, egyébként átlátszó
+        background: hex.length === 6 ? `radial-gradient(circle at center, #${hex}, #000000)` : 'transparent',
+        // Ha megvan a 6 karakter, akkor látható (1), egyébként láthatatlan (0)
+        opacity: hex.length === 6 ? 1 : 0,
+        // Ez a trükk: simán átúszik (fade) egyikből a másikba
+        transition: 'opacity 1s ease, background 0.5s ease'
+      }} />
+
       {/* CSS Animation Keyframes for Background */}
       <style jsx global>{`
         @keyframes gradientBG {
