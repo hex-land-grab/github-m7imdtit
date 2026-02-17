@@ -9,7 +9,7 @@ const G_LINK = "https://soloflowsystems.gumroad.com/l/zlqosf";
 
 const supabase = createClient(S_URL, S_KEY);
 
-export default function HexLandGrab() {
+export default function OwnAColor() {
   const [hex, setHex] = useState('')
   const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
   const [recentSales, setRecentSales] = useState<any[]>([])
@@ -54,8 +54,10 @@ export default function HexLandGrab() {
   }
 
   const shareOnX = () => {
-    const text = `I just found that #${hex} is AVAILABLE on Hex Land Grab! Who's gonna own it?`;
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent('https://hex-land-grab.vercel.app')}`; 
+    // ITT A MÁRKANÉV FRISSÍTVE:
+    const text = `I just found that #${hex} is AVAILABLE on Own a Color! Who's gonna own it?`;
+    // ITT A DOMAIN FRISSÍTVE:
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent('https://own-a-color.vercel.app')}`; 
     window.open(url, '_blank');
   }
 
@@ -77,7 +79,7 @@ export default function HexLandGrab() {
       padding: '60px 20px',
     }}>
       
-      {/* HEADER */}
+      {/* HEADER - ÚJ MÁRKANÉVVEL */}
       <div style={{ textAlign: 'center', marginBottom: '50px', maxWidth: '800px', zIndex: 10 }}>
         
         <h1 style={{ 
@@ -89,10 +91,10 @@ export default function HexLandGrab() {
           lineHeight: '1',
           textShadow: '0 0 40px rgba(255,255,255,0.1)'
         }}>
-          HEX LAND GRAB
+          OWN A COLOR
         </h1>
         <p style={{ fontSize: '1.25rem', color: '#cbd5e1', maxWidth: '580px', margin: '0 auto', lineHeight: '1.6' }}>
-          Own a color. <span style={{ color: '#fff', borderBottom: '2px solid #fff' }}>Forever.</span>
+          The Exclusive Digital Registry. <span style={{ color: '#fff', borderBottom: '2px solid #fff' }}>Forever.</span>
         </p>
       </div>
       
@@ -222,7 +224,7 @@ export default function HexLandGrab() {
         </div>
       </div>
 
-      {/* NEW LIST VIEW SECTION */}
+      {/* LIST VIEW SECTION */}
       <div style={{ marginTop: '100px', width: '100%', maxWidth: '700px', marginBottom: '60px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '20px' }}>
           <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>OWNERSHIP LEDGER</h3>
@@ -312,7 +314,7 @@ export default function HexLandGrab() {
         </div>
         
         <p style={{ marginTop: '15px', fontSize: '12px', color: '#475569' }}>
-          &copy; 2026 Hex Land Grab. All rights reserved.
+          &copy; 2026 Own a Color. All rights reserved.
         </p>
       </div>
 
