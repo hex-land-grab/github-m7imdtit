@@ -192,7 +192,7 @@ export default function OwnAColor() {
         </div>
       </div>
 
-      {/* --- ÚJ JOGI VÉDELMI LÁBLÉC (LEGAL SHIELD) --- */}
+      {/* --- MÓDOSÍTOTT JOGI VÉDELMI LÁBLÉC (CONTACT NÉLKÜL) --- */}
       <footer style={{ marginTop: 'auto', width: '100%', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '48px', paddingBottom: '48px' }}>
         <div style={{ maxWidth: '896px', margin: '0 auto', padding: '0 16px' }}>
           <p style={{ color: '#71717a', fontSize: '14px', marginBottom: '16px' }}>
@@ -209,7 +209,6 @@ export default function OwnAColor() {
           <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', fontSize: '12px', fontWeight: '500', letterSpacing: '0.05em', color: '#a1a1aa' }}>
             <a href="/terms" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#a1a1aa'}>TERMS & CONDITIONS</a>
             <a href="/privacy" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#a1a1aa'}>PRIVACY POLICY</a>
-            <a href="mailto:support@ownacolor.com" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#a1a1aa'}>CONTACT</a>
           </div>
         </div>
       </footer>
