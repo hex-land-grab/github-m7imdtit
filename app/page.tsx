@@ -88,7 +88,7 @@ export default function OwnAColor() {
         position: 'fixed',
         top: 0, left: 0, right: 0, bottom: 0,
         zIndex: -2, // Legalul
-        background: 'linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)',
+        background: 'linear-gradient(-45deg, #ee7752, #e73c7e, #FFAC00, #23a6d5, #23d5ab)',
         backgroundSize: '400% 400%',
         animation: 'gradientBG 15s ease infinite'
       }} />
