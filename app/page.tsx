@@ -230,4 +230,130 @@ export default function OwnAColor() {
                     borderRadius: '16px', 
                     cursor: 'pointer', 
                     color: '#fff',
-                    display: 'flex', alignItems: '
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                >
+                  <Twitter size={24} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {status === 'taken' && (
+            <div style={{ 
+              backgroundColor: 'rgba(239, 68, 68, 0.2)', 
+              border: '1px solid #ef4444',
+              color: '#fca5a5', 
+              padding: '24px', 
+              borderRadius: '20px', 
+              width: '100%', 
+              textAlign: 'center',
+            }}>
+              <p style={{ fontWeight: '800', fontSize: '20px', color: '#fff', marginBottom: '5px' }}>LOCKED 🔒</p>
+              <p style={{ fontSize: '14px', color: '#fff' }}>This territory is already occupied.</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* LIST VIEW SECTION */}
+      <div style={{ marginTop: '100px', width: '100%', maxWidth: '700px', marginBottom: '60px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: '20px' }}>
+          <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>OWNERSHIP LEDGER</h3>
+          <span style={{ color: '#e2e8f0', fontSize: '14px', fontFamily: 'monospace', fontWeight: '600' }}>● LIVE FEED</span>
+        </div>
+        
+        {/* LIST CONTAINER */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {recentSales.map((sale) => (
+            <div key={sale.id} className="group" style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              backgroundColor: 'rgba(30, 41, 59, 0.6)', // Glass effect list item
+              backdropFilter: 'blur(10px)',
+              padding: '16px', 
+              borderRadius: '16px', 
+              border: '1px solid rgba(255,255,255,0.1)',
+              transition: 'transform 0.2s, background-color 0.2s'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(30, 41, 59, 0.8)';
+              e.currentTarget.style.transform = 'scale(1.01)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = 'rgba(30, 41, 59, 0.6)';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                {/* COLOR BOX */}
+                <div style={{ 
+                  width: '50px', 
+                  height: '50px', 
+                  backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`, 
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+                  border: '1px solid rgba(255,255,255,0.2)'
+                }}></div>
+                
+                {/* INFO */}
+                <div>
+                  <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '18px', fontFamily: 'monospace', letterSpacing: '1px' }}>
+                    {sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}
+                  </div>
+                  <div style={{ color: '#cbd5e1', fontSize: '13px' }}>
+                    Owned by <span style={{ color: '#fff', fontWeight: '700' }}>{sale.owner_name || 'Anonymous'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* DATE */}
+              <div style={{ color: '#cbd5e1', fontSize: '12px', textAlign: 'right', fontWeight: '500' }}>
+                {formatDate(sale.created_at)}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* FOOTER */}
+      <div style={{ 
+        marginTop: 'auto', 
+        borderTop: '1px solid rgba(255,255,255,0.2)', 
+        paddingTop: '30px', 
+        paddingBottom: '40px',
+        width: '100%', 
+        textAlign: 'center' 
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '24px', alignItems: 'center' }}>
+          
+          <a href="/terms" 
+             style={{ color: '#e2e8f0', textDecoration: 'none', fontSize: '14px', fontWeight: '500', transition: 'color 0.2s', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }} 
+             onMouseOver={(e) => e.currentTarget.style.color = '#fff'} 
+             onMouseOut={(e) => e.currentTarget.style.color = '#e2e8f0'}>
+            Terms & Conditions
+          </a>
+
+          <span style={{ color: '#fff' }}>|</span>
+
+          <a href="/privacy" 
+             style={{ color: '#e2e8f0', textDecoration: 'none', fontSize: '14px', fontWeight: '500', transition: 'color 0.2s', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }} 
+             onMouseOver={(e) => e.currentTarget.style.color = '#fff'} 
+             onMouseOut={(e) => e.currentTarget.style.color = '#e2e8f0'}>
+            Privacy Policy
+          </a>
+
+        </div>
+        
+        <p style={{ marginTop: '15px', fontSize: '12px', color: '#e2e8f0', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+          &copy; 2026 Own a Color. All rights reserved.
+        </p>
+      </div>
+
+    </div>
+  )
+}
