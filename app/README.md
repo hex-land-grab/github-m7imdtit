@@ -50,3 +50,10 @@ To run this project locally, follow these steps:
 ```bash
 git clone [https://github.com/YOUR_USERNAME/own-a-color.git](https://github.com/YOUR_USERNAME/own-a-color.git)
 cd own-a-color
+2. Install dependenciesBashnpm install
+# or
+yarn install
+3. Environment VariablesCreate a .env.local file in the root directory and add your Supabase credentials:KódrészletNEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+4. Run the development serverBashnpm run dev
+Open http://localhost:3000 with your browser to see the result.💾 Database Schema (Supabase)The project uses a single, optimized table named sold_colors.Column NameTypeDescriptioniduuidPrimary Keyhex_codetextThe unique hex code (e.g. #FF0055)owner_nametextDisplay name of the owneremailtextOwner's contact email (Private)created_attimestamptzTransaction timestamp🌍 Live DeploymentThe project is deployed on Vercel and can be accessed here:https://own-a-color.vercel.app📜 LicenseThis project is open source and available under the MIT License.Architected by [Your Name/Handle] - 2026
