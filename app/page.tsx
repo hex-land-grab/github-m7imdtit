@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info } from 'lucide-react'
+import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info, Trophy } from 'lucide-react'
 
 // Környezeti változók
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -14,11 +14,19 @@ export default function OwnAColor() {
   const [hex, setHex] = useState('')
   const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
   const [recentSales, setRecentSales] = useState<any[]>([])
+  const [totalCount, setTotalCount] = useState<number>(0) // ÚJ ÁLLAPOT: Számláló
   
   useEffect(() => {
     const fetchSales = async () => {
-      const { data } = await supabase.from('sold_colors').select('*').order('created_at', { ascending: false }).limit(20);
+      // Módosított lekérdezés: count (számolás) + limit 50 a rács miatt
+      const { data, count } = await supabase
+        .from('sold_colors')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .limit(50);
+      
       if (data) setRecentSales(data);
+      if (count !== null) setTotalCount(count);
     };
 
     fetchSales();
@@ -26,7 +34,8 @@ export default function OwnAColor() {
     const channel = supabase
       .channel('realtime_sales')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sold_colors' }, (payload) => {
-        setRecentSales((prev) => [payload.new, ...prev.slice(0, 19)]);
+        setRecentSales((prev) => [payload.new, ...prev.slice(0, 49)]); // 50-re növelve a buffer
+        setTotalCount((prev) => prev + 1); // Számláló növelése élőben
       })
       .subscribe();
 
@@ -86,7 +95,7 @@ export default function OwnAColor() {
       overflowX: 'hidden'
     }}>
       
-      {/* 1. RÉTEG: MOZGÓ GRADIENS */}
+      {/* 1. RÉTEG: MOZGÓ GRADIENS (EREDETI) */}
       <div style={{
         position: 'fixed',
         top: 0, left: 0, right: 0, bottom: 0,
@@ -117,7 +126,7 @@ export default function OwnAColor() {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
       `}</style>
 
-      {/* HEADER - FRISSÍTETT BIZALMI SZÖVEGEKKEL */}
+      {/* HEADER */}
       <div style={{ textAlign: 'center', marginBottom: '40px', maxWidth: '800px', zIndex: 10 }}>
         <h1 style={{ 
           fontSize: '4.5rem', fontWeight: '900', marginBottom: '10px', marginTop: '20px', letterSpacing: '-2px', lineHeight: '1',
@@ -127,22 +136,30 @@ export default function OwnAColor() {
           OWN A COLOR
         </h1>
         
-        {/* Value Proposition + Trust Defender */}
         <p style={{ fontSize: '1.2rem', color: '#e2e8f0', maxWidth: '640px', margin: '0 auto 20px auto', lineHeight: '1.6', fontWeight: '500' }}>
           The Global Registry. <span style={{ color: '#fff', fontWeight: '700' }}>16 Million Colors.</span> One Owner Each.
           <br/> Claim your spot on the ledger forever.
         </p>
 
-        {/* Apró betűs, de látható "Trust" szöveg above-the-fold */}
+        {/* BIZALMI SOR */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '20px', opacity: 0.7 }}>
           <Info size={14} color="#cbd5e1" />
           <span style={{ fontSize: '12px', color: '#cbd5e1' }}>Official Registry Entry • Digital Collectible Service • Not IP Rights</span>
         </div>
 
-        {/* Árcédula Badge */}
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', backgroundColor: '#fbbf24', borderRadius: '50px', boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)', transform: 'rotate(-2deg)' }}>
-          <Tag size={18} color="#000" fill="#000" />
-          <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>EARLY ACCESS: $5 USD</span>
+        {/* ÚJ: STATISZTIKA (Számláló) + ÁR */}
+        <div style={{ display: 'inline-flex', gap: '16px', alignItems: 'center' }}>
+          {/* Számláló */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)' }}>
+             <Trophy size={16} color="#fbbf24" />
+             <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount > 0 ? `${totalCount} Colors Claimed` : 'Registry Open'}</span>
+          </div>
+          
+          {/* Ár Badge */}
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', backgroundColor: '#fbbf24', borderRadius: '50px', boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)' }}>
+             <Tag size={18} color="#000" fill="#000" />
+             <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>EARLY ACCESS: $5 USD</span>
+          </div>
         </div>
       </div>
       
@@ -210,9 +227,9 @@ export default function OwnAColor() {
         </div>
       </div>
 
-      {/* LIST VIEW SECTION */}
-      <div style={{ marginTop: '100px', width: '100%', maxWidth: '700px', marginBottom: '60px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.3)', paddingBottom: '20px' }}>
+      {/* --- ÚJ: GRID GALÉRIA SZEKCIÓ --- */}
+      <div style={{ marginTop: '100px', width: '100%', maxWidth: '1000px', marginBottom: '60px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', padding: '0 20px' }}>
           <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
              <Globe size={20} color="#fff"/>
              <h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>OWNERSHIP LEDGER</h3>
@@ -220,21 +237,57 @@ export default function OwnAColor() {
           <span style={{ color: '#4ade80', fontSize: '12px', fontFamily: 'monospace', fontWeight: '700', border: '1px solid #4ade80', padding: '4px 8px', borderRadius: '4px' }}>● LIVE FEED</span>
         </div>
         
-        <div className="custom-scrollbar" style={{ maxHeight: '450px', overflowY: 'auto', paddingRight: '12px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {recentSales.map((sale) => (
-              <div key={sale.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(30, 41, 59, 0.6)', backdropFilter: 'blur(10px)', padding: '16px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                  <div style={{ width: '50px', height: '50px', backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`, borderRadius: '12px', border: '1px solid rgba(255,255,255,0.2)' }}></div>
-                  <div>
-                    <div style={{ color: '#fff', fontWeight: 'bold', fontSize: '18px', fontFamily: 'monospace' }}>{sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}</div>
-                    <div style={{ color: '#cbd5e1', fontSize: '13px' }}>Owned by <span style={{ color: '#fff', fontWeight: '700' }}>{sale.owner_name || 'Anonymous'}</span></div>
+        {/* CSS GRID RÁCS */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', // Automatikus rács
+          gap: '16px', 
+          padding: '0 20px' 
+        }}>
+          {recentSales.map((sale) => (
+            <div key={sale.id} className="group" style={{ position: 'relative' }}>
+              {/* ÜVEGHATÁSÚ KÁRTYA */}
+              <div style={{ 
+                backgroundColor: 'rgba(30, 41, 59, 0.6)', 
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(255,255,255,0.1)', 
+                borderRadius: '16px', 
+                overflow: 'hidden',
+                transition: 'transform 0.2s',
+                cursor: 'default',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                {/* Szín blokk */}
+                <div style={{ 
+                  height: '100px', 
+                  backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`,
+                  width: '100%'
+                }}></div>
+                
+                {/* Adatok */}
+                <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                  <p style={{ color: '#fff', fontSize: '15px', fontWeight: '700', fontFamily: 'monospace', marginBottom: '4px', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                    {sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}
+                  </p>
+                  <p style={{ color: '#e2e8f0', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: '8px' }}>
+                    {sale.owner_name || 'Anonymous'}
+                  </p>
+                  
+                  {/* DÁTUM (Kérted) */}
+                  <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px' }}>
+                    <p style={{ color: '#94a3b8', fontSize: '10px' }}>
+                      {formatDate(sale.created_at)}
+                    </p>
                   </div>
                 </div>
-                <div style={{ color: '#cbd5e1', fontSize: '12px' }}>{formatDate(sale.created_at)}</div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
 
