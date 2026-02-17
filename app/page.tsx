@@ -15,7 +15,7 @@ export default function OwnAColor() {
   const [recentSales, setRecentSales] = useState<any[]>([])
   
   // Ez a state felel a háttérszínért
-  const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab)');
+const [bgStyle, setBgStyle] = useState<string>('linear-gradient(-45deg, #ff0000, #ffa500, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff)');
 
   useEffect(() => {
     const fetchSales = async () => {
