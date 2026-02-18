@@ -21,7 +21,7 @@ export default function OwnAColor() {
         .from('sold_colors')
         .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
-        .limit(50); // Itt a limit, de görgethető lesz
+        .limit(100); // Itt a limit, de görgethető lesz
       
       if (data) setRecentSales(data);
       if (count !== null) setTotalCount(count);
@@ -32,7 +32,7 @@ export default function OwnAColor() {
     const channel = supabase
       .channel('realtime_sales')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sold_colors' }, (payload) => {
-        setRecentSales((prev) => [payload.new, ...prev.slice(0, 49)]);
+        setRecentSales((prev) => [payload.new, ...prev.slice(0, 99)]);
         setTotalCount((prev) => prev + 1);
       })
       .subscribe();
