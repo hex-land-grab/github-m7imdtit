@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info, Trophy, Lock } from 'lucide-react'
+import Link from 'next/link' // ÚJ: Next.js Link importálása
 
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -243,15 +244,15 @@ export default function OwnAColor() {
           <span style={{ color: '#4ade80', fontSize: '12px', fontFamily: 'monospace', fontWeight: '700', border: '1px solid #4ade80', padding: '4px 8px', borderRadius: '4px' }}>● LIVE FEED</span>
         </div>
         
-        {/* SCROLLABLE LEDGER START - ITT A LÉNYEG */}
+        {/* SCROLLABLE LEDGER START */}
         <div className="custom-scrollbar" style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', 
           gap: '16px', 
           padding: '20px',
-          maxHeight: '600px', // FIX MAGASSÁG
-          overflowY: 'auto', // GÖRGETHETŐSÉG
-          backgroundColor: 'rgba(0,0,0,0.2)', // Enyhe háttér, hogy elkülönüljön
+          maxHeight: '600px', 
+          overflowY: 'auto', 
+          backgroundColor: 'rgba(0,0,0,0.2)', 
           borderRadius: '24px',
           border: '1px solid rgba(255,255,255,0.05)'
         }}>
@@ -283,7 +284,6 @@ export default function OwnAColor() {
                     {sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}
                   </p>
                   
-                  {/* CITY FEJLESZTÉS: Név + Város */}
                   <p style={{ color: '#e2e8f0', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: '8px' }}>
                     {sale.owner_name || 'Anonymous'}
                     {sale.city && (
@@ -304,6 +304,32 @@ export default function OwnAColor() {
           ))}
         </div>
         {/* SCROLLABLE LEDGER END */}
+
+        {/* ÚJ FULL REGISTRY GOMB */}
+        <div style={{ marginTop: '24px', textAlign: 'center' }}>
+          <Link 
+            href="/registry" 
+            style={{ 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '8px', 
+              color: '#cbd5e1', 
+              fontSize: '14px', 
+              fontWeight: '600', 
+              textDecoration: 'none', 
+              padding: '10px 24px', 
+              backgroundColor: 'rgba(255, 255, 255, 0.05)', 
+              borderRadius: '50px', 
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; }}
+          >
+            View Full Registry &rarr;
+          </Link>
+        </div>
+
       </div>
 
       <footer style={{ marginTop: 'auto', width: '100%', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '48px', paddingBottom: '48px' }}>
