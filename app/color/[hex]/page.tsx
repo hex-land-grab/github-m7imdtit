@@ -2,11 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { Twitter, ExternalLink, ArrowLeft, ShieldCheck, Unlock } from 'lucide-react'
 
-import { createClient } from '@supabase/supabase-js'
-import Link from 'next/link'
-import { Twitter, ExternalLink, ArrowLeft, ShieldCheck, Unlock } from 'lucide-react'
-
-// --- EZT AZ ÚJ BLOKKOT ADJUK HOZZÁ A TWITTER MIATT ---
+// --- DINAMIKUS METAADATOK A TWITTER/X ELŐNÉZETHEZ ---
 export async function generateMetadata(props: { params: Promise<{ hex: string }> }) {
   const params = await props.params;
   const rawHex = params?.hex?.replace(/[^0-9A-Fa-f]/gi, '').toUpperCase() || '';
@@ -14,8 +10,15 @@ export async function generateMetadata(props: { params: Promise<{ hex: string }>
   return {
     title: `Color #${rawHex} | Own a Color Registry`,
     description: `Check out the official registry status for hex color #${rawHex}.`,
+    openGraph: {
+      title: `Color #${rawHex} | Own a Color Registry`,
+      description: `Check out the official registry status for hex color #${rawHex}.`,
+      type: 'website',
+    },
     twitter: {
       card: 'summary_large_image', // Ez a varázsszó mondja meg a Twitternek, hogy jelenítse meg a nagy képet!
+      title: `Color #${rawHex} | Own a Color Registry`,
+      description: `Check out the official registry status for hex color #${rawHex}.`,
     }
   }
 }
@@ -101,7 +104,6 @@ export default async function ColorCertificatePage(props: { params: Promise<{ he
 
       <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '600px' }}>
         
-        {/* JAVÍTVA: JS események lecserélve Tailwind class-okra */}
         <Link href="/" className="hover:opacity-70 transition-opacity" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#94a3b8', textDecoration: 'none', marginBottom: '32px', fontSize: '14px' }}>
           <ArrowLeft size={16} /> Back to Registry
         </Link>
@@ -154,7 +156,6 @@ export default async function ColorCertificatePage(props: { params: Promise<{ he
                 <p style={{ fontSize: '18px', color: '#e2e8f0', marginBottom: '32px', lineHeight: '1.6' }}>
                   This hex code has not been claimed yet. Be the first and only person to own <strong style={{ color: '#fff' }}>{hexCode}</strong> in the global registry.
                 </p>
-                {/* JAVÍTVA: JS események lecserélve Tailwind class-okra */}
                 <a href={gumroadUrl} className="hover:scale-[1.02] transition-transform" style={{ background: '#3b82f6', color: '#fff', padding: '20px', borderRadius: '16px', textDecoration: 'none', fontWeight: '800', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%' }}>
                   CLAIM FOR $5 <ExternalLink size={24}/>
                 </a>
@@ -162,7 +163,6 @@ export default async function ColorCertificatePage(props: { params: Promise<{ he
             )}
 
             <div style={{ marginTop: '24px' }}>
-              {/* JAVÍTVA: JS események lecserélve Tailwind class-okra */}
               <a href={twitterIntentUrl} target="_blank" rel="noopener noreferrer" className="hover:bg-white/10 transition-colors" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '16px', borderRadius: '16px', color: '#fff', textDecoration: 'none', fontWeight: '600' }}>
                 <Twitter size={20} /> {isOwned ? 'Share Ownership' : 'Tell a Friend'}
               </a>
