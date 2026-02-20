@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info, Trophy, Lock } from 'lucide-react'
-import Link from 'next/link' // ÚJ: Next.js Link importálása
+import Link from 'next/link'
 
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -22,7 +22,7 @@ export default function OwnAColor() {
         .from('sold_colors')
         .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
-        .limit(50); // Itt a limit, de görgethető lesz
+        .limit(50);
       
       if (data) setRecentSales(data);
       if (count !== null) setTotalCount(count);
@@ -56,7 +56,7 @@ export default function OwnAColor() {
     setStatus('checking');
     
     const normalizedHex = `#${clean}`;
-    const { data } = await supabase.from('sold_colors').select('*').eq('hex_code', normalizedHex).single();
+    const { data } = await supabase.from('sold_colors').select('*').eq('hex_code', normalizedHex).maybeSingle();
 
     if (data) { setStatus('taken'); } else { setStatus('available'); }
   }
@@ -90,7 +90,7 @@ export default function OwnAColor() {
       alignItems: 'center', 
       padding: '60px 20px',
       position: 'relative',
-      overflowX: 'hidden' // Csak vízszintes görgetés tiltása
+      overflowX: 'hidden'
     }}>
       
       <div style={{
@@ -117,7 +117,6 @@ export default function OwnAColor() {
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
-        /* Itt a stílus, amit most már használni is fogunk a Ledger doboznál */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
@@ -175,13 +174,11 @@ export default function OwnAColor() {
             />
           </div>
           
-          <button onClick={generateRandomColor} title="Surprise Me!" style={{ 
+          <button onClick={generateRandomColor} title="Surprise Me!" className="hover:bg-white/20 transition-colors" style={{ 
             backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.2)', 
             borderRadius: '16px', width: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', transition: 'background 0.2s'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'} 
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}>
+            cursor: 'pointer'
+          }}>
             <Shuffle size={24} color="#fff" />
           </button>
         </div>
@@ -206,12 +203,10 @@ export default function OwnAColor() {
               </div>
               
               <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', marginBottom: '10px' }}>
-                <a href={getGumroadUrl()} style={{ background: '#3b82f6', color: '#fff', padding: '20px', borderRadius: '16px', textDecoration: 'none', fontWeight: '800', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 4px 20px rgba(59, 130, 246, 0.5)', transition: 'transform 0.2s', width: '100%' }}
-                  onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'} onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                <a href={getGumroadUrl()} className="hover:scale-[1.02] transition-transform" style={{ background: '#3b82f6', color: '#fff', padding: '20px', borderRadius: '16px', textDecoration: 'none', fontWeight: '800', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 4px 20px rgba(59, 130, 246, 0.5)', width: '100%' }}>
                   CLAIM FOR $5 <ExternalLink size={24}/>
                 </a>
-                <button onClick={shareOnX} style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.3)', padding: '0 24px', borderRadius: '16px', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s' }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}>
+                <button onClick={shareOnX} className="hover:bg-white/20 transition-colors" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.3)', padding: '0 24px', borderRadius: '16px', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Twitter size={24} />
                 </button>
               </div>
@@ -227,9 +222,9 @@ export default function OwnAColor() {
                 </div>
                 <p style={{ color: '#e2e8f0', fontSize: '14px' }}>This color is already owned by someone else.</p>
               </div>
-              <button onClick={generateRandomColor} style={{ color: '#cbd5e1', fontSize: '14px', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}>
-                Find another color
-              </button>
+              <Link href={`/color/${hex}`} style={{ display: 'inline-block', backgroundColor: 'rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: '50px', color: '#fff', textDecoration: 'none', fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>
+                View Owner Certificate &rarr;
+              </Link>
             </div>
           )}
         </div>
@@ -244,7 +239,7 @@ export default function OwnAColor() {
           <span style={{ color: '#4ade80', fontSize: '12px', fontFamily: 'monospace', fontWeight: '700', border: '1px solid #4ade80', padding: '4px 8px', borderRadius: '4px' }}>● LIVE FEED</span>
         </div>
         
-        {/* SCROLLABLE LEDGER START */}
+        {/* SCROLLABLE LEDGER BEKÖTVE (Link) */}
         <div className="custom-scrollbar" style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', 
@@ -256,59 +251,61 @@ export default function OwnAColor() {
           borderRadius: '24px',
           border: '1px solid rgba(255,255,255,0.05)'
         }}>
-          {recentSales.map((sale) => (
-            <div key={sale.id} className="group" style={{ position: 'relative' }}>
-              <div style={{ 
-                backgroundColor: 'rgba(30, 41, 59, 0.6)', 
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255,255,255,0.1)', 
-                borderRadius: '16px', 
-                overflow: 'hidden',
-                transition: 'transform 0.2s',
-                cursor: 'default',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
-              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+          {recentSales.map((sale) => {
+            const rawHex = sale.hex_code.replace('#', '');
+            return (
+              <Link 
+                key={sale.id} 
+                href={`/color/${rawHex}`} 
+                className="group hover:-translate-y-1 transition-transform" 
+                style={{ position: 'relative', textDecoration: 'none', display: 'block' }}
               >
                 <div style={{ 
-                  height: '100px', 
-                  backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`,
-                  width: '100%'
-                }}></div>
-                
-                <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                  <p style={{ color: '#fff', fontSize: '15px', fontWeight: '700', fontFamily: 'monospace', marginBottom: '4px', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
-                    {sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}
-                  </p>
+                  backgroundColor: 'rgba(30, 41, 59, 0.6)', 
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.1)', 
+                  borderRadius: '16px', 
+                  overflow: 'hidden',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}>
+                  <div style={{ 
+                    height: '100px', 
+                    backgroundColor: sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`,
+                    width: '100%'
+                  }}></div>
                   
-                  <p style={{ color: '#e2e8f0', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: '8px' }}>
-                    {sale.owner_name || 'Anonymous'}
-                    {sale.city && (
-                      <span style={{ opacity: 0.7, marginLeft: '4px' }}>
-                        • {sale.city}
-                      </span>
-                    )}
-                  </p>
-
-                  <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px' }}>
-                    <p style={{ color: '#94a3b8', fontSize: '10px' }}>
-                      {formatDate(sale.created_at)}
+                  <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                    <p style={{ color: '#fff', fontSize: '15px', fontWeight: '700', fontFamily: 'monospace', marginBottom: '4px', textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}>
+                      {sale.hex_code.startsWith('#') ? sale.hex_code : `#${sale.hex_code}`}
                     </p>
+                    
+                    <p style={{ color: '#e2e8f0', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: '8px' }}>
+                      {sale.owner_name || 'Anonymous'}
+                      {sale.city && (
+                        <span style={{ opacity: 0.7, marginLeft: '4px' }}>
+                          • {sale.city}
+                        </span>
+                      )}
+                    </p>
+
+                    <div style={{ marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px' }}>
+                      <p style={{ color: '#94a3b8', fontSize: '10px' }}>
+                        {formatDate(sale.created_at)}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              </Link>
+            );
+          })}
         </div>
-        {/* SCROLLABLE LEDGER END */}
 
-        {/* ÚJ FULL REGISTRY GOMB */}
         <div style={{ marginTop: '24px', textAlign: 'center' }}>
           <Link 
             href="/registry" 
+            className="hover:bg-white/10 hover:text-white transition-all"
             style={{ 
               display: 'inline-flex', 
               alignItems: 'center', 
@@ -321,10 +318,7 @@ export default function OwnAColor() {
               backgroundColor: 'rgba(255, 255, 255, 0.05)', 
               borderRadius: '50px', 
               border: '1px solid rgba(255, 255, 255, 0.1)',
-              transition: 'all 0.2s ease'
             }}
-            onMouseOver={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.color = '#cbd5e1'; e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)'; }}
           >
             View Full Registry &rarr;
           </Link>
@@ -344,8 +338,8 @@ export default function OwnAColor() {
             Purchase represents a listing service for the lifetime of the platform.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', fontSize: '12px', fontWeight: '500', letterSpacing: '0.05em', color: '#a1a1aa' }}>
-            <a href="/terms" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#a1a1aa'}>TERMS & CONDITIONS</a>
-            <a href="/privacy" style={{ color: 'inherit', textDecoration: 'none', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#a1a1aa'}>PRIVACY POLICY</a>
+            <Link href="/terms" className="hover:text-white transition-colors" style={{ color: 'inherit', textDecoration: 'none' }}>TERMS & CONDITIONS</Link>
+            <Link href="/privacy" className="hover:text-white transition-colors" style={{ color: 'inherit', textDecoration: 'none' }}>PRIVACY POLICY</Link>
           </div>
         </div>
       </footer>
