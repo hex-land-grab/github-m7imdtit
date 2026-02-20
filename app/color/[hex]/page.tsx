@@ -2,14 +2,17 @@ import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { Twitter, ExternalLink, ArrowLeft, ShieldCheck, Unlock } from 'lucide-react'
 
-// --- DINAMIKUS METAADATOK A TWITTER/X ELŐNÉZETHEZ ---
+// --- DINAMIKUS METAADATOK A TWITTER/X ELŐNÉZETHEZ (NUKLEÁRIS OPCIÓ) ---
 export async function generateMetadata(props: { params: Promise<{ hex: string }> }) {
   const params = await props.params;
   const rawHex = params?.hex?.replace(/[^0-9A-Fa-f]/gi, '').toUpperCase() || '';
   
+  // Kiszámoljuk a pontos, abszolút webcímet a képhez
+  const baseUrl = 'https://own-a-color.vercel.app';
+  const imageUrl = `${baseUrl}/color/${rawHex}/opengraph-image`;
+  
   return {
-    // EZ A KULCS: Megmondjuk a Next.js-nek, hogy mi a teljes webcímünk!
-    metadataBase: new URL('https://own-a-color.vercel.app'),
+    metadataBase: new URL(baseUrl),
     title: `Color #${rawHex} | Own a Color Registry`,
     description: `Check out the official registry status for hex color #${rawHex}.`,
     openGraph: {
@@ -17,11 +20,20 @@ export async function generateMetadata(props: { params: Promise<{ hex: string }>
       description: `Check out the official registry status for hex color #${rawHex}.`,
       type: 'website',
       url: `/color/${rawHex}`,
+      images: [
+        {
+          url: imageUrl, // ERŐSZAKOSAN MEGADJUK A KÉPET
+          width: 1200,
+          height: 630,
+          alt: `Color #${rawHex} Registry Certificate`,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image', 
       title: `Color #${rawHex} | Own a Color Registry`,
       description: `Check out the official registry status for hex color #${rawHex}.`,
+      images: [imageUrl], // ERŐSZAKOSAN MEGADJUK A KÉPET A TWITTERNEK IS
     }
   }
 }
