@@ -2,6 +2,25 @@ import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 import { Twitter, ExternalLink, ArrowLeft, ShieldCheck, Unlock } from 'lucide-react'
 
+import { createClient } from '@supabase/supabase-js'
+import Link from 'next/link'
+import { Twitter, ExternalLink, ArrowLeft, ShieldCheck, Unlock } from 'lucide-react'
+
+// --- EZT AZ ÚJ BLOKKOT ADJUK HOZZÁ A TWITTER MIATT ---
+export async function generateMetadata(props: { params: Promise<{ hex: string }> }) {
+  const params = await props.params;
+  const rawHex = params?.hex?.replace(/[^0-9A-Fa-f]/gi, '').toUpperCase() || '';
+  
+  return {
+    title: `Color #${rawHex} | Own a Color Registry`,
+    description: `Check out the official registry status for hex color #${rawHex}.`,
+    twitter: {
+      card: 'summary_large_image', // Ez a varázsszó mondja meg a Twitternek, hogy jelenítse meg a nagy képet!
+    }
+  }
+}
+// -----------------------------------------------------
+
 // Fő komponens
 export default async function ColorCertificatePage(props: { params: Promise<{ hex: string }> }) {
   const params = await props.params;
