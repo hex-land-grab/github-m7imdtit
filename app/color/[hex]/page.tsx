@@ -4,13 +4,10 @@ import { Twitter, ExternalLink, ArrowLeft, ShieldCheck, Unlock } from 'lucide-re
 
 // Fő komponens
 export default async function ColorCertificatePage(props: { params: Promise<{ hex: string }> }) {
-  
-  // 1. JAVÍTÁS: Next.js 15 kompatibilis paraméter kinyerés (kötelező az 'await')
   const params = await props.params;
   const hexParam = params?.hex || '';
   const rawHex = hexParam.replace(/[^0-9A-Fa-f]/gi, '').toUpperCase();
   
-  // 2. JAVÍTÁS: Biztonsági fék. Ha hiányoznak a Vercel kulcsok, nem omlik össze, hanem kiírja a hibát!
   const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
   
@@ -85,8 +82,8 @@ export default async function ColorCertificatePage(props: { params: Promise<{ he
 
       <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '600px' }}>
         
-        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#94a3b8', textDecoration: 'none', marginBottom: '32px', fontSize: '14px', transition: 'color 0.2s' }}
-          onMouseOver={(e) => e.currentTarget.style.color = '#fff'} onMouseOut={(e) => e.currentTarget.style.color = '#94a3b8'}>
+        {/* JAVÍTVA: JS események lecserélve Tailwind class-okra */}
+        <Link href="/" className="hover:opacity-70 transition-opacity" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#94a3b8', textDecoration: 'none', marginBottom: '32px', fontSize: '14px' }}>
           <ArrowLeft size={16} /> Back to Registry
         </Link>
 
@@ -138,14 +135,16 @@ export default async function ColorCertificatePage(props: { params: Promise<{ he
                 <p style={{ fontSize: '18px', color: '#e2e8f0', marginBottom: '32px', lineHeight: '1.6' }}>
                   This hex code has not been claimed yet. Be the first and only person to own <strong style={{ color: '#fff' }}>{hexCode}</strong> in the global registry.
                 </p>
-                <a href={gumroadUrl} style={{ background: '#3b82f6', color: '#fff', padding: '20px', borderRadius: '16px', textDecoration: 'none', fontWeight: '800', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%' }}>
+                {/* JAVÍTVA: JS események lecserélve Tailwind class-okra */}
+                <a href={gumroadUrl} className="hover:scale-[1.02] transition-transform" style={{ background: '#3b82f6', color: '#fff', padding: '20px', borderRadius: '16px', textDecoration: 'none', fontWeight: '800', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%' }}>
                   CLAIM FOR $5 <ExternalLink size={24}/>
                 </a>
               </div>
             )}
 
             <div style={{ marginTop: '24px' }}>
-              <a href={twitterIntentUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '16px', borderRadius: '16px', color: '#fff', textDecoration: 'none', fontWeight: '600' }}>
+              {/* JAVÍTVA: JS események lecserélve Tailwind class-okra */}
+              <a href={twitterIntentUrl} target="_blank" rel="noopener noreferrer" className="hover:bg-white/10 transition-colors" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '16px', borderRadius: '16px', color: '#fff', textDecoration: 'none', fontWeight: '600' }}>
                 <Twitter size={20} /> {isOwned ? 'Share Ownership' : 'Tell a Friend'}
               </a>
             </div>
