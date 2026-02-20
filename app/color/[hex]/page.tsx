@@ -8,15 +8,18 @@ export async function generateMetadata(props: { params: Promise<{ hex: string }>
   const rawHex = params?.hex?.replace(/[^0-9A-Fa-f]/gi, '').toUpperCase() || '';
   
   return {
+    // EZ A KULCS: Megmondjuk a Next.js-nek, hogy mi a teljes webcímünk!
+    metadataBase: new URL('https://own-a-color.vercel.app'),
     title: `Color #${rawHex} | Own a Color Registry`,
     description: `Check out the official registry status for hex color #${rawHex}.`,
     openGraph: {
       title: `Color #${rawHex} | Own a Color Registry`,
       description: `Check out the official registry status for hex color #${rawHex}.`,
       type: 'website',
+      url: `/color/${rawHex}`,
     },
     twitter: {
-      card: 'summary_large_image', // Ez a varázsszó mondja meg a Twitternek, hogy jelenítse meg a nagy képet!
+      card: 'summary_large_image', 
       title: `Color #${rawHex} | Own a Color Registry`,
       description: `Check out the official registry status for hex color #${rawHex}.`,
     }
