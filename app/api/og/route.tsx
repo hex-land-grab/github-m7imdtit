@@ -1,12 +1,33 @@
-import { ImageResponse } from 'next/og'
-import { createClient } from '@supabase/supabase-js'
+import { ImageResponse } from 'next/og';
+import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server'; // Hozzáadva az átirányításhoz
 
-export const runtime = 'edge'
+export const runtime = 'edge';
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const hex = searchParams.get('hex')?.toUpperCase() || '000000'
-  const hexCode = `#${hex}`
+  const url = new URL(request.url);
+  const rawHex = url.searchParams.get('hex');
+
+  // --- 🛡️ 1. KANONIZÁLÁS ÉS SZEMÉT-SZŰRÉS (Cache Bypass Védelem) ---
+  // Tisztítjuk a hex kódot: csak nagybetűk (A-F) és számok (0-9) maradhatnak
+  let cleanHex = (rawHex || '000000').toUpperCase().replace(/[^0-9A-F]/g, '');
+  
+  // Ha a végeredmény nem pontosan 6 karakter, biztonsági okokból fekete lesz
+  if (cleanHex.length !== 6) cleanHex = '000000'; 
+
+  // A tökéletes, "tiszta" URL paraméter, ahogy mi elvárjuk
+  const canonicalSearch = `?hex=${cleanHex}`;
+
+  // Ha a bejövő URL paraméterei nem egyeznek milliméterre pontosan a tisztával (pl. &bot=1 van benne)
+  if (url.search !== canonicalSearch) {
+    console.log(`🛡️ CACHE SHIELD: Redirecting malicious/messy URL to canonical format.`);
+    const canonicalUrl = new URL(url.pathname + canonicalSearch, request.url);
+    // 308-as végleges átirányítás: ez magát a botot is rákényszeríti, hogy a tiszta URL-t használja!
+    return NextResponse.redirect(canonicalUrl, 308); 
+  }
+  // -----------------------------------------------------------------
+
+  const hexCode = `#${cleanHex}`;
   
   const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -21,13 +42,11 @@ export async function GET(request: Request) {
   const isOwned = !!data;
   const ownerName = data?.owner_name || '';
 
-  const hexNum = parseInt(hex, 16);
+  const hexNum = parseInt(cleanHex, 16);
   const isLight = hexNum > 0xffffff / 2;
   const textColor = isLight ? '#000000' : '#ffffff';
 
-  // --- AZ INTELLIGENS PÁNCÉLZAT ---
-  // Ha elkelt: 1 évig a memóriában marad (immutable).
-  // Ha szabad: 60 másodpercig a memóriában tartja a Vercel (kivédi a DDoS-t, de frissül, ha eladják).
+  // Intelligens gyorsítótár: ha elkelt 1 év (immutable), ha szabad 60 másodperc
   const cacheHeader = isOwned 
     ? 'public, max-age=31536000, immutable' 
     : 'public, s-maxage=60, stale-while-revalidate=300';
@@ -78,5 +97,5 @@ export async function GET(request: Request) {
         'Cache-Control': cacheHeader,
       }
     }
-  )
+  );
 }
