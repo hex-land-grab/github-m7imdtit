@@ -25,6 +25,13 @@ export async function GET(request: Request) {
   const isLight = hexNum > 0xffffff / 2;
   const textColor = isLight ? '#000000' : '#ffffff';
 
+  // --- AZ INTELLIGENS PÁNCÉLZAT ---
+  // Ha elkelt: 1 évig a memóriában marad (immutable).
+  // Ha szabad: 60 másodpercig a memóriában tartja a Vercel (kivédi a DDoS-t, de frissül, ha eladják).
+  const cacheHeader = isOwned 
+    ? 'public, max-age=31536000, immutable' 
+    : 'public, s-maxage=60, stale-while-revalidate=300';
+
   return new ImageResponse(
     (
       <div
@@ -64,6 +71,12 @@ export async function GET(request: Request) {
         </div>
       </div>
     ),
-    { width: 1200, height: 630 }
+    { 
+      width: 1200, 
+      height: 630,
+      headers: {
+        'Cache-Control': cacheHeader,
+      }
+    }
   )
 }
