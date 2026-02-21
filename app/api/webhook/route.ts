@@ -2,8 +2,9 @@ import { createClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''; 
-const supabase = createClient(S_URL, S_KEY);
+// KORREKCIÓ 1: Itt a Mesterkulcsot (Service Role Key) használjuk, ami átüti az RLS biztonsági pajzsot!
+const S_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''; 
+const supabase = createClient(S_URL, S_SERVICE_KEY);
 
 export async function POST(req: Request) {
   try {
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
       payload = Object.fromEntries(formData);
     }
 
-    console.log('Gumroad Webhook Payload:', payload);
+    console.log('Gumroad Webhook Payload Received');
 
     // 1. HEX KINYERÉSE
     let hexRaw = (
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
 
     if (ownerName === '') ownerName = 'Anonymous';
 
-    // 3. VÁROS KINYERÉSE (ÚJ!)
+    // 3. VÁROS KINYERÉSE
     let city = (
         payload['City'] || 
         payload['custom_fields[City]'] || 
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
     ).toString().trim();
 
     if (!hexRaw) {
-      return NextResponse.json({ error: 'Missing Hex code' }, { status: 200 });
+      return NextResponse.json({ error: 'Missing Hex code' }, { status: 400 });
     }
 
     // 4. NORMALIZÁLÁS
@@ -56,24 +57,34 @@ export async function POST(req: Request) {
     }
 
     if (hexNormalized.length !== 7) {
-      return NextResponse.json({ error: 'Invalid Hex format' }, { status: 200 });
+      return NextResponse.json({ error: 'Invalid Hex format' }, { status: 400 });
     }
 
-    // 5. MENTÉS (City hozzáadva!)
+    // 5. MENTÉS A MESTERKULCCSAL
     const { error } = await supabase
       .from('sold_colors')
       .insert([
         { 
           hex_code: hexNormalized, 
           owner_name: ownerName,
-          city: city, // Itt mentjük el a várost az adatbázisba
-          purchase_price: payload.price_usd || 5
+          city: city,
+          // Ha lenne ilyen oszlopod: purchase_price: payload.price_usd || 5
         }
       ]);
 
+    // KORREKCIÓ 2: Race Condition (Dupla fizetés) kezelése
     if (error) {
       if (error.code === '23505') {
-        return NextResponse.json({ status: 'already_owned' }, { status: 200 });
+        // VÉSZJELZÉS A LOGBA! Ezt látni fogod a Vercel-ben, és tudod, kinek kell Refund-ot adni.
+        console.error('🚨 RACE CONDITION ALERT: Customer paid for an already owned color!', {
+            hex: hexNormalized,
+            buyer_email: payload.email || 'Unknown Email',
+            sale_id: payload.sale_id || 'Unknown Sale'
+        });
+        
+        // 200-at küldünk, hogy a Gumroad ne próbálkozzon végtelen ciklusban újra, 
+        // de az adatait elmentettük a logba a visszatérítéshez.
+        return NextResponse.json({ status: 'already_owned_refund_required' }, { status: 200 });
       }
       throw error;
     }
