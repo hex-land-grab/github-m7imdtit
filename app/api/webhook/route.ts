@@ -45,6 +45,9 @@ export async function POST(req: Request) {
     let hexRaw = (payload['SelectedHex'] || payload['custom_fields[SelectedHex]'] || payload['Hex'] || '').toString().trim();
     let ownerName = (payload['Nickname'] || payload['custom_fields[Nickname]'] || 'Anonymous').toString().trim();
     let city = (payload['City'] || payload['custom_fields[City]'] || payload['Your City'] || payload['custom_fields[Your City]'] || '').toString().trim();
+    
+    // ÚJ: Kinyerjük a Gumroad egyedi tranzakció azonosítóját a duplikációk szűréséhez
+    let saleId = (payload['sale_id'] || '').toString().trim();
 
     // Teszt ping esetén előfordulhat, hogy nincs hex, ezt kezeljük
     if (!hexRaw && payload['test']) {
@@ -60,6 +63,24 @@ export async function POST(req: Request) {
     if (hexNormalized.length !== 7) {
       return NextResponse.json({ error: 'Invalid Hex format' }, { status: 400 });
     }
+
+    // --- 🛡️ ÚJ: IDEMPOTENCIA (Dupla hívás) ELLENŐRZÉS ---
+    if (saleId) {
+      const { error: ledgerError } = await supabase
+        .from('webhook_events')
+        .insert([{ sale_id: saleId, hex_code: hexNormalized }]);
+
+      if (ledgerError) {
+        // A 23505 a "Már létezik" (Unique Violation) hiba a Postgres-ben
+        if (ledgerError.code === '23505') {
+          console.log(`✅ IDEMPOTENCY: Webhook for sale ${saleId} already processed. Skipping duplicate.`);
+          // Csendben "Sikeresnek" hazudjuk magunkat a Gumroad felé, így nem próbálkozik tovább
+          return NextResponse.json({ status: 'success', message: 'Already processed' }, { status: 200 });
+        }
+        throw ledgerError; // Ha más kritikus hiba van, azt eldobjuk
+      }
+    }
+    // ---------------------------------------------------
 
     if (containsBlockedWord(ownerName)) {
       console.log(`🚨 MODERATION: Blocked name "${ownerName}"`);
@@ -79,7 +100,8 @@ export async function POST(req: Request) {
 
     if (error) {
       if (error.code === '23505') {
-        console.error('🚨 RACE CONDITION ALERT: Customer paid for an already owned color!');
+        // Ez már csak akkor fog lefutni, ha tényleg 2 KÜLÖNBÖZŐ vásárlás (más sale_id) fut be ugyanarra a színre!
+        console.error('🚨 RACE CONDITION ALERT: Customer paid for an already owned color!', { hex: hexNormalized, sale_id: saleId });
         return NextResponse.json({ status: 'already_owned_refund_required' }, { status: 200 });
       }
       throw error;
