@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
-import { Search, Loader2, ArrowLeft } from 'lucide-react';
+import { Search, Loader2, ArrowLeft, Sparkles } from 'lucide-react';
 
 // Supabase kliens inicializálása
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -40,7 +40,7 @@ export default function RegistryPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#050505] text-white p-4 md:p-8 font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-[#050505] text-white p-4 md:p-8 font-sans relative overflow-hidden pb-32">
       
       {/* Háttér effekt */}
       <div style={{
@@ -59,7 +59,7 @@ export default function RegistryPage() {
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
               Full Registry
             </h1>
-            <p className="text-gray-400 font-medium">The complete, immutable ledger of all owned colors.</p>
+            <p className="text-gray-400 font-medium">The complete, public ledger of all owned colors.</p>
           </div>
           <Link href="/" className="inline-flex items-center gap-2 text-sm px-5 py-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white text-gray-300 transition-all">
             <ArrowLeft size={16} /> Back to Home
@@ -115,15 +115,33 @@ export default function RegistryPage() {
               )
             })}
             
+            {/* ÚJ: EMPTY STATE KONVERZIÓ */}
             {!loading && filteredColors.length === 0 && (
-              <div className="col-span-full py-12 text-center text-gray-500 border border-dashed border-white/10 rounded-3xl">
-                <p className="text-lg mb-2">No matching colors found.</p>
-                <p className="text-sm">Try searching for a different name, city, or hex code.</p>
+              <div className="col-span-full py-16 px-4 text-center border border-dashed border-blue-500/30 bg-blue-500/5 rounded-3xl backdrop-blur-sm">
+                <Sparkles className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                <p className="text-xl md:text-2xl font-bold text-white mb-2">No matching colors found.</p>
+                <p className="text-gray-400 mb-8 max-w-md mx-auto">Good news! This means the color you are looking for might still be available in the global registry.</p>
+                <Link href="/" className="inline-block bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.4)] transition-all hover:scale-105">
+                  Check Availability & Claim &rarr;
+                </Link>
               </div>
             )}
           </div>
         )}
       </div>
+
+      {/* ÚJ: LEBEGŐ VÁSÁRLÁSI HUROK (FLOATING CTA) */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 md:p-6 z-50 flex justify-center pointer-events-none">
+        <div className="bg-[#0f172a]/90 backdrop-blur-xl border border-white/10 p-4 md:px-8 md:py-4 rounded-3xl md:rounded-full shadow-[0_-10px_40px_rgba(0,0,0,0.5)] flex flex-col md:flex-row items-center gap-4 pointer-events-auto transform transition-transform hover:scale-[1.02]">
+          <p className="text-gray-300 font-medium text-sm md:text-base text-center">
+            Inspired by these colors? <span className="text-white font-bold">Secure your own unique hex code.</span>
+          </p>
+          <Link href="/" className="bg-white text-black hover:bg-gray-200 font-bold py-2.5 px-6 rounded-full whitespace-nowrap shadow-lg transition-colors flex items-center gap-2">
+            Claim a Color <ArrowLeft size={16} className="rotate-180" />
+          </Link>
+        </div>
+      </div>
+
     </div>
   );
 }
