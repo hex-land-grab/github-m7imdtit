@@ -185,13 +185,7 @@ function OwnAColorContent() {
               </div>
             </div>
           )}
-<div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', marginBottom: '10px' }}>
-                <a href={getGumroadUrl()} onClick={() => localStorage.setItem('pendingHex', hex)} style={{ background: '#3b82f6', color: '#fff', padding: '20px', borderRadius: '16px', textDecoration: 'none', fontWeight: '800', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 4px 20px rgba(59, 130, 246, 0.5)', width: '100%' }}>CLAIM FOR $5 <ExternalLink size={24}/></a>
-                <button onClick={shareOnX} style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.3)', padding: '0 24px', borderRadius: '16px', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Twitter size={24} /></button>
-              </div>
-              
-              {/* ÚJ: INSTANT DELIVERABLE SOR */}
-              <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0', fontWeight: '500', textAlign: 'center' }}>⚡ Instant: Public ledger entry + Share card</p>
+
           {recentSales.map((sale) => {
             const rawHex = sale.hex_code.replace('#', '');
             return (
