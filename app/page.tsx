@@ -177,7 +177,7 @@ export default function OwnAColor() {
             transform: 'rotate(-3deg)' 
           }}>
              <Tag size={18} color="#000" fill="#000" />
-             <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>CLAIM NOW: $5 USD: $5 USD</span>
+             <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>CLAIM NOW: $5 USD</span>
           </div>
         </div>
       </div>
