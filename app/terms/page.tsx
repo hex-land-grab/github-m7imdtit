@@ -17,38 +17,41 @@ export default function TermsPage() {
             <AlertTriangle size={20} /> Important Summary
           </div>
           <ul style={{ margin: 0, paddingLeft: '20px', display: 'flex', flexDirection: 'column', gap: '10px', color: '#cbd5e1' }}>
-            <li><strong style={{ color: '#fff' }}>NO REFUNDS:</strong> Digital sales are final (exceptions apply for technical failures).</li>
+            <li><strong style={{ color: '#fff' }}>WHAT YOU GET:</strong> A public registry listing (for the lifetime of the service) + a timestamped Claim ID.</li>
+            <li><strong style={{ color: '#fff' }}>NO REFUNDS:</strong> Digital sales are final (exceptions strictly limited to duplicate charges or verified failure to create the entry).</li>
             <li><strong style={{ color: '#fff' }}>NOT AN NFT:</strong> This is a centralized private database record, not a blockchain token.</li>
             <li><strong style={{ color: '#fff' }}>NO IP RIGHTS:</strong> You do not legally own the color in the real world.</li>
           </ul>
         </div>
 
         <h2 style={{ color: '#fff', marginTop: '30px', marginBottom: '15px' }}>1. Overview & Eligibility</h2>
-        <p>Own a Color ("we", "us", "our") provides an entertainment and status-based digital collectible experience that lets users "claim" a hex color code for a one-time fee. By using this service, you confirm you are at least 18 years old. Payments are processed securely by Gumroad, acting as the merchant of record.</p>
+        <p>Own a Color ("we", "us", "our") provides an entertainment and status-based digital collectible experience that lets users "claim" a hex color code for a one-time fee. By using this service, you confirm you are at least 18 years old. Payments are processed by Gumroad, acting as the merchant of record.</p>
 
         <h2 style={{ color: '#fff', marginTop: '30px', marginBottom: '15px' }}>2. What You Are Buying</h2>
         <p>When you purchase a claim, you receive:</p>
         <ul style={{ paddingLeft: '20px', marginBottom: '15px' }}>
           <li>A permanent public listing (for the lifetime of the service) associating your chosen nickname with a specific Hex Code.</li>
-          <li>A unique, timestamped registry entry that serves as proof of your claim.</li>
+          <li>A unique, timestamped registry entry (Claim ID) that serves as proof of your listing.</li>
         </ul>
         <p><strong style={{ color: '#fff' }}>You do NOT receive:</strong> Any legal ownership, intellectual property rights, trademark rights, or exclusive rights to use a color in the real world or on other platforms.</p>
 
         <h2 style={{ color: '#fff', marginTop: '30px', marginBottom: '15px' }}>3. Content Guidelines & Moderation</h2>
-        <p>When claiming a color, you may provide a public "Nickname". We reserve the right, at our sole discretion, to modify, censor, or delete any Nickname that contains hate speech, illegal content, impersonation, or promotional links, <strong>without notice and without issuing a refund.</strong></p>
+        <p>When claiming a color, you may provide public display fields such as a "Nickname" and "City". We reserve the right, at our sole discretion, to modify, anonymize, or delete any input that contains hate speech, illegal content, impersonation, or promotional links, <strong>without notice and without issuing a refund.</strong> The underlying Hex Code registry entry will remain intact.</p>
 
         <h2 style={{ color: '#fff', marginTop: '30px', marginBottom: '15px' }}>4. No Refund Policy & EU/UK Waiver</h2>
-        <p>Refunds are not provided, except in cases of duplicate payment charges or a verified technical failure where the system fails to create your registry entry.</p>
+        <p>Refunds are generally not provided. Exceptions are strictly limited to duplicate payment charges or a verified technical failure. <i>Verification means: the public registry fails to display your entry within 24 hours of payment confirmation.</i></p>
         <p style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #3b82f6', marginTop: '10px' }}>
           <strong style={{ color: '#fff' }}>EU/UK Consumers (Digital Performance Waiver):</strong> By claiming a color and completing the purchase, you explicitly request immediate performance of this digital service. You acknowledge that once the registry entry is created and displayed, the service is considered fully performed, and you lose your right of withdrawal (14-day refund right).
         </p>
 
         <h2 style={{ color: '#fff', marginTop: '30px', marginBottom: '15px' }}>5. Platform Continuity & Uptime</h2>
-        <p>Your purchase grants a listing for the lifetime of the service. We strive to keep the site available indefinitely, but we do not guarantee 100% perpetual uptime as the service relies on third-party providers (Vercel, Supabase).</p>
-        <p><strong style={{ color: '#fff' }}>Continuity Guarantee:</strong> Should the Own a Color project ever be permanently discontinued, we commit to publishing a final, publicly accessible, timestamped archive (snapshot) of the entire registry within 30 days of closure, ensuring your historical claim is preserved.</p>
+        <p>Your purchase grants a listing for the lifetime of the service. We do not guarantee 100% perpetual uptime as the service relies on third-party hosting providers.</p>
+        <p><strong style={{ color: '#fff' }}>Continuity Commitment:</strong> Should the Own a Color project ever be permanently discontinued, we will use commercially reasonable efforts to publish a final, publicly accessible, timestamped archive (snapshot) of the entire registry (target: within 30 days of closure), ensuring your historical claim is preserved.</p>
 
         <h2 style={{ color: '#fff', marginTop: '30px', marginBottom: '15px' }}>6. Contact & Support</h2>
-        <p>For questions regarding payment processing, receipts, or credit card charges, please contact <strong>Gumroad Support</strong> directly. For platform-specific inquiries (e.g., modifying an inappropriate display name), please reply to the email address provided on your Gumroad purchase receipt.</p>
+        <p style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #4ade80', marginTop: '10px' }}>
+          To maintain security and verify your purchase status, <strong style={{ color: '#fff' }}>all support inquiries, including display name modifications or verified technical failure reports, must be made by directly replying to your official Gumroad purchase receipt email.</strong>
+        </p>
       </div>
     </div>
   );
