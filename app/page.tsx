@@ -15,6 +15,7 @@ export default function OwnAColor() {
   const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
   const [recentSales, setRecentSales] = useState<any[]>([])
   const [totalCount, setTotalCount] = useState<number>(0)
+  const [isLoaded, setIsLoaded] = useState<boolean>(false) // ÚJ: Betöltési állapot figyelő
   
   useEffect(() => {
     const fetchSales = async () => {
@@ -26,6 +27,8 @@ export default function OwnAColor() {
       
       if (data) setRecentSales(data);
       if (count !== null) setTotalCount(count);
+      
+      setIsLoaded(true); // ÚJ: Amikor megjött az adat, jelezzük a frontendnek
     };
 
     fetchSales();
@@ -117,6 +120,13 @@ export default function OwnAColor() {
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
         }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: .5; }
+        }
+        .animate-pulse {
+          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
@@ -143,9 +153,15 @@ export default function OwnAColor() {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          
+          {/* ÚJ: SKELETON LOADER VAGY VALÓS SZÁM */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '50px', backdropFilter: 'blur(10px)' }}>
              <Trophy size={16} color="#fbbf24" />
-             <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount} Colors Claimed</span>
+             {isLoaded ? (
+               <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount} Colors Claimed</span>
+             ) : (
+               <span className="animate-pulse" style={{ fontWeight: '700', fontSize: '14px', color: '#94a3b8' }}>Loading Claimed...</span>
+             )}
           </div>
           
           <div style={{ 
@@ -239,7 +255,6 @@ export default function OwnAColor() {
           <span style={{ color: '#4ade80', fontSize: '12px', fontFamily: 'monospace', fontWeight: '700', border: '1px solid #4ade80', padding: '4px 8px', borderRadius: '4px' }}>● LIVE FEED</span>
         </div>
         
-        {/* SCROLLABLE LEDGER BEKÖTVE (Link) */}
         <div className="custom-scrollbar" style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', 
