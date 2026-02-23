@@ -3,7 +3,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info, Trophy, Lock, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation' // useRouter hozzáadva
 
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -11,7 +11,6 @@ const G_LINK = "https://soloflowsystems.gumroad.com/l/zlqosf";
 
 const supabase = createClient(S_URL, S_KEY);
 
-// BELSŐ KOMPONENS A LOGIKÁVAL
 function OwnAColorContent() {
   const [hex, setHex] = useState('')
   const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
@@ -20,7 +19,34 @@ function OwnAColorContent() {
   const [isLoaded, setIsLoaded] = useState<boolean>(false)
   
   const searchParams = useSearchParams()
+  const router = useRouter() // URL tisztításhoz
   const isSuccess = searchParams.get('success') === 'true'
+
+  useEffect(() => {
+    // KONFETTI ÉS URL TISZTÍTÁS LOGIKA
+    if (isSuccess) {
+      // 1. Konfetti betöltése és indítása
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+      script.onload = () => {
+        // @ts-ignore
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#3b82f6', '#22c55e', '#fbbf24', '#ef4444', '#a855f7']
+        });
+      };
+      document.body.appendChild(script);
+
+      // 2. URL tisztítása 3 másodperc után, hogy frissítésnél ne jöjjön elő újra
+      const timer = setTimeout(() => {
+        router.replace('/', { scroll: false });
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess, router]);
 
   useEffect(() => {
     const fetchSales = async () => {
@@ -193,7 +219,6 @@ function OwnAColorContent() {
   )
 }
 
-// A FŐ EXPORT, AMI MEGOLDJA A VERCEL BUILD HIBÁT
 export default function OwnAColor() {
   return (
     <Suspense fallback={
