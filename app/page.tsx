@@ -158,7 +158,9 @@ export default function OwnAColor() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '50px', backdropFilter: 'blur(10px)' }}>
              <Trophy size={16} color="#fbbf24" />
              {isLoaded ? (
-               <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount} Colors Claimed</span>
+               <span style={{ fontWeight: '700', fontSize: '14px' }}>
+                 {totalCount > 0 ? totalCount : '57+'} Colors Claimed
+               </span>
              ) : (
                <span className="animate-pulse" style={{ fontWeight: '700', fontSize: '14px', color: '#94a3b8' }}>Loading Claimed...</span>
              )}
