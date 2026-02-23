@@ -1,8 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
-import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info, Trophy, Lock } from 'lucide-react'
+import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info, Trophy, Lock, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation' // ÚJ: URL paraméter figyeléshez
 
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
@@ -15,7 +16,10 @@ export default function OwnAColor() {
   const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
   const [recentSales, setRecentSales] = useState<any[]>([])
   const [totalCount, setTotalCount] = useState<number>(57)
-  const [isLoaded, setIsLoaded] = useState<boolean>(false) // ÚJ: Betöltési állapot figyelő
+  const [isLoaded, setIsLoaded] = useState<boolean>(false) 
+  
+  const searchParams = useSearchParams() // ÚJ: URL paraméterek lekérése
+  const isSuccess = searchParams.get('success') === 'true' // ÚJ: ?success=true ellenőrzése
   
   useEffect(() => {
     const fetchSales = async () => {
@@ -28,7 +32,7 @@ export default function OwnAColor() {
       if (data) setRecentSales(data);
       if (count !== null) setTotalCount(count);
       
-      setIsLoaded(true); // ÚJ: Amikor megjött az adat, jelezzük a frontendnek
+      setIsLoaded(true); 
     };
 
     fetchSales();
@@ -95,6 +99,22 @@ export default function OwnAColor() {
       position: 'relative',
       overflowX: 'hidden'
     }}>
+
+      {/* SIKERES VÁSÁRLÁS ÜZENET (Üveg effektus) - ÚJ SZEKCIÓ */}
+      {isSuccess && (
+        <div style={{
+          position: 'fixed', top: '20px', zIndex: 100,
+          backgroundColor: 'rgba(34, 197, 94, 0.9)', backdropFilter: 'blur(10px)',
+          padding: '12px 24px', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '12px',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.2)',
+          animation: 'slideDown 0.5s ease-out'
+        }}>
+          <CheckCircle size={20} color="#fff" />
+          <span style={{ fontWeight: '700', fontSize: '14px' }}>
+            Success! Your color is being registered. Please wait 5-10 seconds for the ledger to update.
+          </span>
+        </div>
+      )}
       
       <div style={{
         position: 'fixed',
@@ -123,6 +143,10 @@ export default function OwnAColor() {
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: .5; }
+        }
+        @keyframes slideDown {
+          0% { transform: translateY(-100px); opacity: 0; }
+          100% { transform: translateY(0); opacity: 1; }
         }
         .animate-pulse {
           animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -154,7 +178,6 @@ export default function OwnAColor() {
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
           
-          {/* ÚJ: SKELETON LOADER VAGY VALÓS SZÁM */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '50px', backdropFilter: 'blur(10px)' }}>
              <Trophy size={16} color="#fbbf24" />
              {isLoaded ? (
