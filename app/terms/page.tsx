@@ -93,7 +93,7 @@ export default function TermsPage() {
           <section>
             <h2 style={{ color: "#fff", fontSize: "1.5rem", fontWeight: "700", marginBottom: "10px" }}>4. Platform Operation</h2>
             <p>
-              We strive to keep the site available indefinitely ("Forever Ownership"), but we do not guarantee 100% uptime. The service relies on third-party providers (Vercel, Supabase). We are not liable for temporary outages or data loss caused by these providers.
+              "We strive to keep the site available indefinitely (for the lifetime of the service), but we do not guarantee 100% uptime." The service relies on third-party providers (Vercel, Supabase). We are not liable for temporary outages or data loss caused by these providers.
             </p>
           </section>
 
