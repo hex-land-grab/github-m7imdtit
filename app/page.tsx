@@ -133,9 +133,13 @@ function OwnAColorContent() {
              <Trophy size={16} color="#fbbf24" />
              {isLoaded ? ( <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount} Colors Claimed</span> ) : ( <span className="animate-pulse" style={{ fontWeight: '700', fontSize: '14px', color: '#94a3b8' }}>Loading Claimed...</span> )}
           </div>
+          
+          {/* ÚJ: DINAMIKUS SÁRGA GOMB */}
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', backgroundColor: '#fbbf24', borderRadius: '50px', boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)', transform: 'rotate(-3deg)' }}>
              <Tag size={18} color="#000" fill="#000" />
-             <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>CLAIM NOW: $5 USD</span>
+             <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>
+               {status === 'available' && hex.length === 6 ? `CLAIM #${hex} — $5` : 'PICK A COLOR — $5'}
+             </span>
           </div>
         </div>
       </div>
@@ -147,7 +151,7 @@ function OwnAColorContent() {
             <Search style={{ position: 'absolute', left: '20px', top: '22px', color: '#cbd5e1', width: '20px', height: '20px' }} />
             <input type="text" value={hex} onChange={(e) => checkColor(e.target.value)} placeholder="Search Hex (e.g. FF0055)" style={{ width: '100%', backgroundColor: 'rgba(15, 23, 42, 0.6)', border: `2px solid ${status === 'available' ? '#4ade80' : 'rgba(255,255,255,0.1)'}`, padding: '18px 18px 18px 50px', fontSize: '20px', color: '#fff', borderRadius: '16px', outline: 'none', transition: 'all 0.3s ease', fontWeight: '700', letterSpacing: '2px', boxShadow: status === 'available' ? '0 0 30px rgba(74, 222, 128, 0.4)' : 'none' }} />
           </div>
-          <button onClick={generateRandomColor} title="Surprise Me!" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '16px', width: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><Shuffle size={24} color="#fff" /></button>
+          <button onClick={generateRandomColor} title="Surprise Me (Random Color)" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '16px', width: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><Shuffle size={24} color="#fff" /></button>
         </div>
 
         <div style={{ minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -155,26 +159,28 @@ function OwnAColorContent() {
           {status === 'checking' && <Loader2 className="animate-spin" style={{ color: '#fff', width: '32px', height: '32px' }} />}
           {status === 'available' && hex.length === 6 && (
             <div className="w-full">
-              
               <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '6px', marginBottom: '16px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.3)', position: 'relative', overflow: 'hidden' }}>
                 <div style={{ backgroundColor: `#${hex}`, borderRadius: '12px', height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', position: 'relative' }}>
                   <span style={{ color: parseInt(hex, 16) > 0xffffff / 2 ? '#000' : '#fff', fontWeight: '900', fontSize: '28px', letterSpacing: '2px', zIndex: 2 }}>#{hex}</span>
                 </div>
               </div>
               
-              {/* EZT A RÉSZT CSERÉLTÜK ÉS BŐVÍTETTÜK: */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', marginBottom: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', marginBottom: '12px' }}>
                 <a href={getGumroadUrl()} onClick={() => localStorage.setItem('pendingHex', hex)} style={{ background: '#3b82f6', color: '#fff', padding: '20px', borderRadius: '16px', textDecoration: 'none', fontWeight: '800', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 4px 20px rgba(59, 130, 246, 0.5)', width: '100%' }}>
                   CLAIM FOR $5 <ExternalLink size={24}/>
                 </a>
-                <button onClick={shareOnX} style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.3)', padding: '0 24px', borderRadius: '16px', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <button onClick={shareOnX} title="Share this color on X" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.3)', padding: '0 24px', borderRadius: '16px', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Twitter size={24} />
                 </button>
               </div>
               
-              {/* ÚJ: INSTANT DELIVERABLE SOR */}
-              <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0', fontWeight: '500', textAlign: 'center' }}>⚡ Instant: Public ledger entry + Share card</p>
-              
+              {/* ÚJ: BŐVÍTETT BIZALMI SZÖVEG */}
+              <div style={{ textAlign: 'center' }}>
+                <p style={{ color: '#cbd5e1', fontSize: '13px', margin: '0 0 6px 0', fontWeight: '500' }}>⚡ Instant: Public ledger entry • Claim ID • Share card</p>
+                <p style={{ color: '#94a3b8', fontSize: '11px', margin: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                  <Lock size={12} /> Secure payment processed by Gumroad
+                </p>
+              </div>
             </div>
           )}
           {status === 'taken' && (
@@ -220,7 +226,6 @@ function OwnAColorContent() {
         <div style={{ marginTop: '24px', textAlign: 'center' }}><Link href="/registry" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#cbd5e1', fontSize: '14px', fontWeight: '600', textDecoration: 'none', padding: '10px 24px', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '50px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>View Full Registry &rarr;</Link></div>
       </div>
 
-      {/* FOOTER SECTION */}
       <footer style={{ marginTop: 'auto', width: '100%', textAlign: 'center', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '48px', paddingBottom: '48px' }}>
         <div style={{ maxWidth: '896px', margin: '0 auto', padding: '0 16px' }}>
           <p style={{ color: '#71717a', fontSize: '14px', marginBottom: '16px' }}>© 2026 Own a Color. The Exclusive Global Registry.</p>
