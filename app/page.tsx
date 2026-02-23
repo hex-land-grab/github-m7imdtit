@@ -14,7 +14,7 @@ export default function OwnAColor() {
   const [hex, setHex] = useState('')
   const [status, setStatus] = useState<'idle' | 'checking' | 'available' | 'taken'>('idle')
   const [recentSales, setRecentSales] = useState<any[]>([])
-  const [totalCount, setTotalCount] = useState<number>(0)
+  const [totalCount, setTotalCount] = useState<number>(57)
   const [isLoaded, setIsLoaded] = useState<boolean>(false) // ÚJ: Betöltési állapot figyelő
   
   useEffect(() => {
