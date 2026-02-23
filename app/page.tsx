@@ -155,11 +155,26 @@ function OwnAColorContent() {
           {status === 'checking' && <Loader2 className="animate-spin" style={{ color: '#fff', width: '32px', height: '32px' }} />}
           {status === 'available' && hex.length === 6 && (
             <div className="w-full">
-              <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '6px', marginBottom: '16px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.3)', position: 'relative', overflow: 'hidden' }}><div style={{ backgroundColor: `#${hex}`, borderRadius: '12px', height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', position: 'relative' }}><span style={{ color: parseInt(hex, 16) > 0xffffff / 2 ? '#000' : '#fff', fontWeight: '900', fontSize: '28px', letterSpacing: '2px', zIndex: 2 }}>#{hex}</span></div></div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', marginBottom: '10px' }}>
-                <a href={getGumroadUrl()} onClick={() => localStorage.setItem('pendingHex', hex)} style={{ background: '#3b82f6', color: '#fff', padding: '20px', borderRadius: '16px', textDecoration: 'none', fontWeight: '800', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 4px 20px rgba(59, 130, 246, 0.5)', width: '100%' }}>CLAIM FOR $5 <ExternalLink size={24}/></a>
-                <button onClick={shareOnX} style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.3)', padding: '0 24px', borderRadius: '16px', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Twitter size={24} /></button>
+              
+              <div style={{ backgroundColor: '#fff', borderRadius: '16px', padding: '6px', marginBottom: '16px', boxShadow: '0 10px 30px -5px rgba(0,0,0,0.3)', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ backgroundColor: `#${hex}`, borderRadius: '12px', height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', position: 'relative' }}>
+                  <span style={{ color: parseInt(hex, 16) > 0xffffff / 2 ? '#000' : '#fff', fontWeight: '900', fontSize: '28px', letterSpacing: '2px', zIndex: 2 }}>#{hex}</span>
+                </div>
               </div>
+              
+              {/* EZT A RÉSZT CSERÉLTÜK ÉS BŐVÍTETTÜK: */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '12px', marginBottom: '10px' }}>
+                <a href={getGumroadUrl()} onClick={() => localStorage.setItem('pendingHex', hex)} style={{ background: '#3b82f6', color: '#fff', padding: '20px', borderRadius: '16px', textDecoration: 'none', fontWeight: '800', fontSize: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 4px 20px rgba(59, 130, 246, 0.5)', width: '100%' }}>
+                  CLAIM FOR $5 <ExternalLink size={24}/>
+                </a>
+                <button onClick={shareOnX} style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.3)', padding: '0 24px', borderRadius: '16px', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Twitter size={24} />
+                </button>
+              </div>
+              
+              {/* ÚJ: INSTANT DELIVERABLE SOR */}
+              <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0', fontWeight: '500', textAlign: 'center' }}>⚡ Instant: Public ledger entry + Share card</p>
+              
             </div>
           )}
           {status === 'taken' && (
