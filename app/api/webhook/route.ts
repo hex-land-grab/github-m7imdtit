@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
+// Inicializálás a PRIVÁT szerviz kulccsal (megkerüli az RLS-t)
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const S_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''; 
 const GUMROAD_TOKEN = process.env.GUMROAD_WEBHOOK_SECRET || '';
@@ -20,7 +21,7 @@ function containsBlockedWord(text: string): boolean {
 
 export async function POST(req: Request) {
   try {
-    // --- 🛡️ GOLYÓÁLLÓ URL TOKEN VÉDELEM ---
+    // --- 🛡️ 1. GOLYÓÁLLÓ URL TOKEN VÉDELEM ---
     const url = new URL(req.url);
     const incomingToken = url.searchParams.get('token');
 
@@ -28,8 +29,8 @@ export async function POST(req: Request) {
       console.error('🚨 SECURITY ALERT: Unauthorized webhook attempt blocked!');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    // ----------------------------------------
 
+    // --- 2. ADATOK BEOLVASÁSA ---
     let payload: any;
     const contentType = req.headers.get('content-type') || '';
     
@@ -40,16 +41,23 @@ export async function POST(req: Request) {
       payload = Object.fromEntries(formData);
     }
 
-    console.log('✅ Gumroad Webhook Payload Verified & Received');
+    // --- 🛡️ 3. TERMÉKSZŰRŐ PAJZS (Kritikus a globális Pinghez) ---
+    // Ha a termék nem az "Own a Color", csendben megállunk, de 200-at válaszolunk
+    const productName = (payload['product_name'] || '').toString();
+    if (productName !== "Own a Color" && !payload['test']) {
+      console.log(`✅ IDLE: Ignored sale for other product: ${productName}`);
+      return NextResponse.json({ status: 'ignored', message: 'Not target product' }, { status: 200 });
+    }
 
+    console.log('✅ Gumroad Webhook Payload Verified & Received for Own a Color');
+
+    // --- 4. ADATOK KINYERÉSE ---
     let hexRaw = (payload['SelectedHex'] || payload['custom_fields[SelectedHex]'] || payload['Hex'] || '').toString().trim();
     let ownerName = (payload['Nickname'] || payload['custom_fields[Nickname]'] || 'Anonymous').toString().trim();
     let city = (payload['City'] || payload['custom_fields[City]'] || payload['Your City'] || payload['custom_fields[Your City]'] || '').toString().trim();
-    
-    // ÚJ: Kinyerjük a Gumroad egyedi tranzakció azonosítóját a duplikációk szűréséhez
     let saleId = (payload['sale_id'] || '').toString().trim();
 
-    // Teszt ping esetén előfordulhat, hogy nincs hex, ezt kezeljük
+    // Teszt ping kezelése
     if (!hexRaw && payload['test']) {
         return NextResponse.json({ status: 'success', message: 'Test ping received' }, { status: 200 });
     }
@@ -58,50 +66,47 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing Hex code' }, { status: 400 });
     }
 
+    // Hex normalizálás
     let hexNormalized = hexRaw.toUpperCase();
     if (!hexNormalized.startsWith('#')) hexNormalized = `#${hexNormalized}`;
     if (hexNormalized.length !== 7) {
       return NextResponse.json({ error: 'Invalid Hex format' }, { status: 400 });
     }
 
-    // --- 🛡️ ÚJ: IDEMPOTENCIA (Dupla hívás) ELLENŐRZÉS ---
+    // --- 🛡️ 5. IDEMPOTENCIA (Dupla hívás szűrése) ---
     if (saleId) {
       const { error: ledgerError } = await supabase
         .from('webhook_events')
         .insert([{ sale_id: saleId, hex_code: hexNormalized }]);
 
       if (ledgerError) {
-        // A 23505 a "Már létezik" (Unique Violation) hiba a Postgres-ben
         if (ledgerError.code === '23505') {
-          console.log(`✅ IDEMPOTENCY: Webhook for sale ${saleId} already processed. Skipping duplicate.`);
-          // Csendben "Sikeresnek" hazudjuk magunkat a Gumroad felé, így nem próbálkozik tovább
+          console.log(`✅ IDEMPOTENCY: Webhook for sale ${saleId} already processed.`);
           return NextResponse.json({ status: 'success', message: 'Already processed' }, { status: 200 });
         }
-        throw ledgerError; // Ha más kritikus hiba van, azt eldobjuk
+        throw ledgerError;
       }
     }
-    // ---------------------------------------------------
 
+    // --- 6. MODERÁCIÓ ---
     if (containsBlockedWord(ownerName)) {
       console.log(`🚨 MODERATION: Blocked name "${ownerName}"`);
       ownerName = 'Anonymous'; 
     }
-
     if (containsBlockedWord(city)) {
       console.log(`🚨 MODERATION: Blocked city "${city}"`);
       city = ''; 
     }
-
     if (ownerName === '') ownerName = 'Anonymous';
 
+    // --- 7. BIZTONSÁGOS ÍRÁS AZ ADATBÁZISBA ---
     const { error } = await supabase
       .from('sold_colors')
       .insert([{ hex_code: hexNormalized, owner_name: ownerName, city: city }]);
 
     if (error) {
       if (error.code === '23505') {
-        // Ez már csak akkor fog lefutni, ha tényleg 2 KÜLÖNBÖZŐ vásárlás (más sale_id) fut be ugyanarra a színre!
-        console.error('🚨 RACE CONDITION ALERT: Customer paid for an already owned color!', { hex: hexNormalized, sale_id: saleId });
+        console.error('🚨 RACE CONDITION ALERT: Color already owned!', { hex: hexNormalized, sale_id: saleId });
         return NextResponse.json({ status: 'already_owned_refund_required' }, { status: 200 });
       }
       throw error;
