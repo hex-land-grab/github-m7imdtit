@@ -36,10 +36,11 @@ function OwnAColorContent() {
       };
       document.body.appendChild(script);
 
+      // Picit meghosszabbítjuk az időt, hogy legyen ideje megosztani Twitteren
       const timer = setTimeout(() => {
         router.replace('/', { scroll: false });
         localStorage.removeItem('pendingHex');
-      }, 5000);
+      }, 8000);
 
       return () => clearTimeout(timer);
     }
@@ -84,9 +85,18 @@ function OwnAColorContent() {
     return `${G_LINK}?${params.toString()}`;
   }
 
+  // --- 🚀 ÚJ VIRAL LOOP: Intelligens megosztó logika ---
   const shareOnX = () => {
-    const text = `I just found that #${hex} is AVAILABLE on Own a Color! Who's gonna own it?`;
-    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent('https://own-a-color.vercel.app')}`; 
+    let text = `I just found that #${hex} is AVAILABLE on Own a Color! Who's gonna own it?`;
+    let shareUrl = 'https://own-a-color.vercel.app';
+
+    // Ha a felhasználó sikeres vásárlás után van, és a saját színét osztja meg
+    if (isSuccess && (tempClaim === hex || localStorage.getItem('pendingHex') === hex)) {
+      text = `I just secured #${hex} on the Global Registry. It's officially mine. 🎨`;
+      shareUrl = `https://own-a-color.vercel.app/color/${hex}`;
+    }
+
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl)}`; 
     window.open(url, '_blank');
   }
 
@@ -99,10 +109,23 @@ function OwnAColorContent() {
   return (
     <div style={{ minHeight: '100vh', color: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px 20px', position: 'relative', overflowX: 'hidden' }}>
       
-      {isSuccess && (
+      {/* --- 🚀 BŐVÍTETT SUCCESS TOAST: TWITTER GOMBBAL --- */}
+      {isSuccess && tempClaim && (
         <div style={{ position: 'fixed', top: '20px', zIndex: 100, backgroundColor: 'rgba(34, 197, 94, 0.9)', backdropFilter: 'blur(10px)', padding: '12px 24px', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.2)', animation: 'slideDown 0.5s ease-out' }}>
           <CheckCircle size={20} color="#fff" />
-          <span style={{ fontWeight: '700', fontSize: '14px' }}>Ownership Secured! Registering in Global Ledger...</span>
+          <span style={{ fontWeight: '700', fontSize: '14px' }}>Ownership Secured!</span>
+          <button 
+            onClick={() => {
+              const shareText = `I just secured #${tempClaim} on the Global Registry. It's officially mine. 🎨`;
+              const shareLink = `https://own-a-color.vercel.app/color/${tempClaim}`;
+              window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareLink)}`, '_blank');
+            }}
+            style={{ marginLeft: '10px', display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#000', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', padding: '6px 14px', borderRadius: '50px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', transition: 'transform 0.2s' }}
+            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            <Twitter size={14} /> Flex on X
+          </button>
         </div>
       )}
 
@@ -134,7 +157,6 @@ function OwnAColorContent() {
              {isLoaded ? ( <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount} Colors Claimed</span> ) : ( <span className="animate-pulse" style={{ fontWeight: '700', fontSize: '14px', color: '#94a3b8' }}>Loading Claimed...</span> )}
           </div>
           
-          {/* ÚJ: DINAMIKUS SÁRGA GOMB */}
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', backgroundColor: '#fbbf24', borderRadius: '50px', boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)', transform: 'rotate(-3deg)' }}>
              <Tag size={18} color="#000" fill="#000" />
              <span style={{ color: '#000', fontWeight: '800', fontSize: '16px', letterSpacing: '0.5px' }}>
@@ -174,7 +196,6 @@ function OwnAColorContent() {
                 </button>
               </div>
               
-              {/* ÚJ: BŐVÍTETT BIZALMI SZÖVEG */}
               <div style={{ textAlign: 'center' }}>
                 <p style={{ color: '#cbd5e1', fontSize: '13px', margin: '0 0 6px 0', fontWeight: '500' }}>⚡ Instant: Public ledger entry • Claim ID • Share card</p>
                 <p style={{ color: '#94a3b8', fontSize: '11px', margin: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
