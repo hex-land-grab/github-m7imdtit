@@ -216,6 +216,56 @@ function OwnAColorContent() {
       {/* LEDGER SECTION */}
       <div style={{ marginTop: '80px', width: '100%', maxWidth: '1000px', marginBottom: '60px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', padding: '0 20px' }}><div style={{display: 'flex', alignItems: 'center', gap: '10px'}}><Globe size={20} color="#fff"/><h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>OWNERSHIP LEDGER</h3></div><span style={{ color: '#4ade80', fontSize: '12px', fontFamily: 'monospace', fontWeight: '700', border: '1px solid #4ade80', padding: '4px 8px', borderRadius: '4px' }}>● LIVE FEED</span></div>
+        
+        {/* 🚀 ÚJ: "JUST CLAIMED" HERO BANNER (Legutóbbi vásárlás kiemelése) */}
+        {recentSales.length > 0 && (
+          <div style={{ padding: '0 20px', marginBottom: '32px' }}>
+            <div style={{
+              backgroundColor: 'rgba(30, 41, 59, 0.8)',
+              border: `1px solid ${recentSales[0].hex_code.startsWith('#') ? recentSales[0].hex_code : '#' + recentSales[0].hex_code}`,
+              boxShadow: `0 0 40px ${recentSales[0].hex_code.startsWith('#') ? recentSales[0].hex_code : '#' + recentSales[0].hex_code}40`,
+              borderRadius: '24px',
+              overflow: 'hidden',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              backdropFilter: 'blur(10px)'
+            }}>
+              {/* Animált "LIVE" Badge */}
+              <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10, backgroundColor: 'rgba(0,0,0,0.6)', padding: '6px 12px', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid rgba(255,255,255,0.2)' }}>
+                <span className="animate-pulse" style={{ width: '8px', height: '8px', backgroundColor: '#4ade80', borderRadius: '50%', display: 'inline-block' }}></span>
+                <span style={{ fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', color: '#fff' }}>JUST CLAIMED</span>
+              </div>
+
+              {/* Hatalmas Színblokk */}
+              <div style={{
+                height: '180px',
+                backgroundColor: recentSales[0].hex_code.startsWith('#') ? recentSales[0].hex_code : '#' + recentSales[0].hex_code,
+                width: '100%'
+              }}></div>
+
+              {/* Tulajdonos Adatai */}
+              <div style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px' }}>
+                <div>
+                  <p style={{ color: '#fff', fontSize: '36px', fontWeight: '900', fontFamily: 'monospace', lineHeight: '1', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+                    {recentSales[0].hex_code.startsWith('#') ? recentSales[0].hex_code : '#' + recentSales[0].hex_code}
+                  </p>
+                  <p style={{ color: '#e2e8f0', fontSize: '18px', marginTop: '8px', fontWeight: '500' }}>
+                    {recentSales[0].owner_name || 'Anonymous'}
+                    {recentSales[0].city && (<span style={{ opacity: 0.7, marginLeft: '8px' }}>• {recentSales[0].city}</span>)}
+                  </p>
+                  <p style={{ color: '#94a3b8', fontSize: '12px', marginTop: '4px' }}>
+                    Secured: {formatDate(recentSales[0].created_at)}
+                  </p>
+                </div>
+                <Link href={`/color/${recentSales[0].hex_code.replace('#', '')}`} style={{ backgroundColor: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', padding: '12px 24px', borderRadius: '50px', color: '#fff', textDecoration: 'none', fontSize: '14px', fontWeight: 'bold', transition: 'background 0.2s' }}>
+                  View Certificate &rarr;
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="custom-scrollbar" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '16px', padding: '20px', maxHeight: '600px', overflowY: 'auto', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
           
           {tempClaim && (
