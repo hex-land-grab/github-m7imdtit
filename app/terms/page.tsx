@@ -49,8 +49,14 @@ export default function TermsPage() {
         <p><strong style={{ color: '#fff' }}>Continuity Commitment:</strong> Should the Own a Color project ever be permanently discontinued, we will use commercially reasonable efforts to publish a final, publicly accessible, timestamped archive (snapshot) of the entire registry (target: within 30 days of closure), ensuring your historical claim is preserved.</p>
 
         <h2 style={{ color: '#fff', marginTop: '30px', marginBottom: '15px' }}>6. Contact & Support</h2>
-        <p style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #4ade80', marginTop: '10px' }}>
-          To maintain security and verify your purchase status, <strong style={{ color: '#fff' }}>all support inquiries, including display name modifications or verified technical failure reports, must be made by directly replying to your official Gumroad purchase receipt email.</strong>
+        <p style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #4ade80', marginTop: '10px', color: '#cbd5e1' }}>
+          To maintain security and verify your purchase status, <strong style={{ color: '#fff' }}>all support inquiries, including display name modifications or verified technical failure reports, must be sent to our official support channel:</strong>
+          <br /><br />
+          <a href="mailto:contact.ownacolor@gmail.com" style={{ color: '#4ade80', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
+            ✉️ contact.ownacolor@gmail.com
+          </a>
+          <br /><br />
+          <span style={{ fontSize: '14px', color: '#94a3b8' }}>Please ensure you email us from the address you used for your purchase, or attach your official Gumroad receipt to help us identify your Claim ID.</span>
         </p>
       </div>
     </div>
