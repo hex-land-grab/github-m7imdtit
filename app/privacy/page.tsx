@@ -43,8 +43,14 @@ export default function PrivacyPage() {
         <p>The 'Nickname' and 'City' fields are displayed on the public internet. If used, consider providing only your country or region. If you prefer absolute privacy, use an alias or leave the optional fields blank.</p>
 
         <h2 style={{ color: '#fff', marginTop: '30px', marginBottom: '15px' }}>5. Contact & Privacy Requests</h2>
-        <p style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #4ade80', marginTop: '10px' }}>
-          To maintain security and verify your identity, <strong style={{ color: '#fff' }}>all privacy requests (including display name anonymization) must be submitted by directly replying to your official Gumroad purchase receipt email, or by using the contact feature within your Gumroad library.</strong> We do not maintain public support forms or direct email addresses.
+        <p style={{ backgroundColor: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #4ade80', marginTop: '10px', color: '#cbd5e1' }}>
+          To maintain security and verify your identity, <strong style={{ color: '#fff' }}>all privacy requests (including display name anonymization) must be sent to our official support channel:</strong>
+          <br /><br />
+          <a href="mailto:contact.ownacolor@gmail.com" style={{ color: '#4ade80', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
+            ✉️ contact.ownacolor@gmail.com
+          </a>
+          <br /><br />
+          <span style={{ fontSize: '14px', color: '#94a3b8' }}>Please ensure you email us from the address you used for your purchase, or attach your official Gumroad receipt to help us identify your Claim ID.</span>
         </p>
         <p style={{ fontSize: '13px', color: '#94a3b8', marginTop: '10px' }}>For billing disputes or payment processing issues, please contact Gumroad Support directly.</p>
       </div>
