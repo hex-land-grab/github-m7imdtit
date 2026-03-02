@@ -1,22 +1,37 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
-// KÖTELEZŐ: Megakadályozza a Vercel telepítéskori összeomlását és a lekérdezés cache-elését
+// 1. Architektúrális utasítások a Vercelnek: Nincs cache, és Edge szerveren fusson
 export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
 
 export async function GET() {
-  // 1. Supabase kliens felébresztése
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-  const supabase = createClient(supabaseUrl, supabaseKey);
 
-  // 2. Mikroszkopikus ping a saját 'sold_colors' táblád felé
-  const { data, error } = await supabase.from('sold_colors').select('hex_code').limit(1);
-
-  if (error) {
-    return NextResponse.json({ status: 'error', message: error.message }, { status: 500 });
+  if (!supabaseUrl || !supabaseKey) {
+    return NextResponse.json({ status: 'error', message: 'Hiányzó környezeti változók.' }, { status: 500 });
   }
 
-  // 3. Sikeres "Ébren vagyok" válasz a hálózatnak
-  return NextResponse.json({ status: 'awake', time: new Date().toISOString() }, { status: 200 });
+  try {
+    // 2. Natív Fetch ping a Supabase REST API-jára (nincs nehézkes klienskönyvtár)
+    const res = await fetch(`${supabaseUrl}/rest/v1/sold_colors?select=hex_code&limit=1`, {
+      method: 'GET',
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json'
+      },
+      cache: 'no-store'
+    });
+
+    if (!res.ok) {
+      throw new Error(`Hálózati hiba: ${res.status}`);
+    }
+
+    // 3. Sikeres válasz
+    return NextResponse.json({ status: 'awake', time: new Date().toISOString() }, { status: 200 });
+    
+  } catch (error) {
+    return NextResponse.json({ status: 'error', message: String(error) }, { status: 500 });
+  }
 }
