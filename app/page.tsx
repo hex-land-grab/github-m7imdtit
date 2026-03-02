@@ -5,8 +5,9 @@ import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info, Trop
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
-const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// 🚀 JAVÍTÁS: A Vercel build-crash elkerülése formátum-helyes fallback URL-lel
+const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 const G_LINK = "https://soloflowsystems.gumroad.com/l/zlqosf"; 
 
 const supabase = createClient(S_URL, S_KEY);
