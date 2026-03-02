@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
 
-// 1. Architektúrális utasítások a Vercelnek: Nincs cache, és Edge szerveren fusson
-export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
-
-export async function GET() {
+// ZÉRÓ Vercel direktíva (nincs dynamic, nincs edge).
+// A varázslat a "(request: Request)" paraméterben van, ami kikényszeríti a valós idejű futást.
+export async function GET(request: Request) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
@@ -13,7 +11,6 @@ export async function GET() {
   }
 
   try {
-    // 2. Natív Fetch ping a Supabase REST API-jára (nincs nehézkes klienskönyvtár)
     const res = await fetch(`${supabaseUrl}/rest/v1/sold_colors?select=hex_code&limit=1`, {
       method: 'GET',
       headers: {
@@ -28,7 +25,6 @@ export async function GET() {
       throw new Error(`Hálózati hiba: ${res.status}`);
     }
 
-    // 3. Sikeres válasz
     return NextResponse.json({ status: 'awake', time: new Date().toISOString() }, { status: 200 });
     
   } catch (error) {
