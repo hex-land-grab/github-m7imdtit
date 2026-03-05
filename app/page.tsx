@@ -47,22 +47,15 @@ function OwnAColorContent() {
     }
   }, [isSuccess, router]);
 
-  useEffect(() => {
+ useEffect(() => {
     const fetchSales = async () => {
       const { data, count } = await supabase.from('sold_colors').select('*', { count: 'exact' }).order('created_at', { ascending: false }).limit(50);
       if (data) setRecentSales(data);
       if (count !== null) setTotalCount(count);
       setIsLoaded(true);
     };
+    
     fetchSales();
-
-    const channel = supabase.channel('realtime_sales').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'sold_colors' }, (payload) => {
-      setTempClaim(null);
-      setRecentSales((prev) => [payload.new, ...prev.slice(0, 49)]);
-      setTotalCount((prev) => prev + 1);
-    }).subscribe();
-
-    return () => { supabase.removeChannel(channel); }
   }, []);
 
   const generateRandomColor = () => {
