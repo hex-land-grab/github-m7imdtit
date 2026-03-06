@@ -86,7 +86,7 @@ function OwnAColorContent() {
 
     // Ha a felhasználó sikeres vásárlás után van, és a saját színét osztja meg
     if (isSuccess && (tempClaim === hex || localStorage.getItem('pendingHex') === hex)) {
-      text = `I just secured #${hex} on the Global Registry. It's officially mine. 🎨`;
+      text = `I just claimed #${hex} in the @OwnAColor registry. Yes, this is a real internet thing. 🎨`;
       shareUrl = `https://own-a-color.vercel.app/color/${hex}`;
     }
 
@@ -110,7 +110,7 @@ function OwnAColorContent() {
           <span style={{ fontWeight: '700', fontSize: '14px' }}>Ownership Secured!</span>
           <button 
             onClick={() => {
-              const shareText = `I just secured #${tempClaim} on the Global Registry. It's officially mine. 🎨`;
+              const shareText = `I just claimed #${tempClaim} in the @OwnAColor registry. Yes, this is a real internet thing. 🎨`;
               const shareLink = `https://own-a-color.vercel.app/color/${tempClaim}`;
               window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareLink)}`, '_blank');
             }}
@@ -138,17 +138,17 @@ function OwnAColorContent() {
 
       {/* HEADER SECTION */}
       <div style={{ textAlign: 'center', marginBottom: '40px', maxWidth: '800px', zIndex: 10 }}>
-        <h1 style={{ fontSize: '4.5rem', fontWeight: '900', marginBottom: '10px', marginTop: '20px', letterSpacing: '-2px', lineHeight: '1', background: 'linear-gradient(to right, #fff, #cbd5e1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.3))' }}>OWN A COLOR</h1>
-        <p style={{ fontSize: '1.2rem', color: '#e2e8f0', maxWidth: '640px', margin: '0 auto 15px auto', lineHeight: '1.6', fontWeight: '500' }}>The Global Registry. <span style={{ color: '#fff', fontWeight: '700' }}>16 Million Colors.</span> One Owner Each.</p>
+        <h1 style={{ fontSize: '4.5rem', fontWeight: '900', marginBottom: '10px', marginTop: '20px', letterSpacing: '-2px', lineHeight: '1', background: 'linear-gradient(to right, #fff, #cbd5e1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.3))' }}>CLAIM YOUR COLOR</h1>
+        <p style={{ fontSize: '1.2rem', color: '#e2e8f0', maxWidth: '640px', margin: '0 auto 15px auto', lineHeight: '1.6', fontWeight: '500' }}>Pick a color, add your name, and secure a one-of-one claim in the Own a Color registry. Includes a shareable digital certificate.</p>
         
         <div style={{ display: 'inline-block', backgroundColor: 'rgba(0,0,0,0.3)', padding: '6px 16px', borderRadius: '20px', marginBottom: '25px', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <span style={{ fontSize: '13px', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '6px' }}><Info size={14} /> Digital Registry Listing Only • Not Intellectual Property Rights</span>
+          <span style={{ fontSize: '13px', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '6px' }}><Info size={14} /> A digital novelty registry • Not legal property rights</span>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '50px', backdropFilter: 'blur(10px)' }}>
              <Trophy size={16} color="#fbbf24" />
-             {isLoaded ? ( <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount} Colors Claimed</span> ) : ( <span className="animate-pulse" style={{ fontWeight: '700', fontSize: '14px', color: '#94a3b8' }}>Loading Claimed...</span> )}
+             {isLoaded ? ( <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount} Early Claims</span> ) : ( <span className="animate-pulse" style={{ fontWeight: '700', fontSize: '14px', color: '#94a3b8' }}>Loading Claims...</span> )}
           </div>
           
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', backgroundColor: '#fbbf24', borderRadius: '50px', boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)', transform: 'rotate(-3deg)' }}>
@@ -165,13 +165,22 @@ function OwnAColorContent() {
         <div style={{ position: 'relative', marginBottom: '20px', display: 'flex', gap: '10px' }}>
           <div style={{ position: 'relative', flexGrow: 1 }}>
             <Search style={{ position: 'absolute', left: '20px', top: '22px', color: '#cbd5e1', width: '20px', height: '20px' }} />
-            <input type="text" value={hex} onChange={(e) => checkColor(e.target.value)} placeholder="Search Hex (e.g. FF0055)" style={{ width: '100%', backgroundColor: 'rgba(15, 23, 42, 0.6)', border: `2px solid ${status === 'available' ? '#4ade80' : 'rgba(255,255,255,0.1)'}`, padding: '18px 18px 18px 50px', fontSize: '20px', color: '#fff', borderRadius: '16px', outline: 'none', transition: 'all 0.3s ease', fontWeight: '700', letterSpacing: '2px', boxShadow: status === 'available' ? '0 0 30px rgba(74, 222, 128, 0.4)' : 'none' }} />
+            <input type="text" value={hex} onChange={(e) => checkColor(e.target.value)} placeholder="Enter a hex or shuffle one (e.g. #FF0055)" style={{ width: '100%', backgroundColor: 'rgba(15, 23, 42, 0.6)', border: `2px solid ${status === 'available' ? '#4ade80' : 'rgba(255,255,255,0.1)'}`, padding: '18px 18px 18px 50px', fontSize: '20px', color: '#fff', borderRadius: '16px', outline: 'none', transition: 'all 0.3s ease', fontWeight: '700', letterSpacing: '2px', boxShadow: status === 'available' ? '0 0 30px rgba(74, 222, 128, 0.4)' : 'none' }} />
           </div>
           <button onClick={generateRandomColor} title="Surprise Me (Random Color)" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '16px', width: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><Shuffle size={24} color="#fff" /></button>
         </div>
 
+        {/* 🚀 ÚJ: USE-CASE CHIPS */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '24px' }}>
+          {['🎁 Anniversary gift', '🤡 Inside joke', '💅 Brand flex', '👶 Baby’s first color', '🎮 Gamer tag', '🏆 Internet trophy'].map(chip => (
+            <button key={chip} onClick={generateRandomColor} style={{ padding: '6px 12px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50px', fontSize: '12px', color: '#cbd5e1', cursor: 'pointer', transition: 'all 0.2s', fontWeight: '500' }} onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.color = '#fff'; }} onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#cbd5e1'; }}>
+              {chip}
+            </button>
+          ))}
+        </div>
+
         <div style={{ minHeight: '140px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-          {status === 'idle' && ( <div style={{textAlign: 'center', color: '#cbd5e1'}}><p style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>Enter 6 characters OR click Shuffle.</p><p style={{ fontSize: '12px', opacity: 0.6 }}>Find your unique color in the registry.</p></div> )}
+          {status === 'idle' && ( <div style={{textAlign: 'center', color: '#cbd5e1'}}><p style={{ fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>Pick a color to preview your certificate.</p></div> )}
           {status === 'checking' && <Loader2 className="animate-spin" style={{ color: '#fff', width: '32px', height: '32px' }} />}
           {status === 'available' && hex.length === 6 && (
             <div className="w-full">
