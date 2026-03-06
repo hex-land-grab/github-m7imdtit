@@ -148,7 +148,7 @@ function OwnAColorContent() {
         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '50px', backdropFilter: 'blur(10px)' }}>
              <Trophy size={16} color="#fbbf24" />
-             {isLoaded ? ( <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount} Early Claims</span> ) : ( <span className="animate-pulse" style={{ fontWeight: '700', fontSize: '14px', color: '#94a3b8' }}>Loading Claims...</span> )}
+             {isLoaded ? ( <span style={{ fontWeight: '700', fontSize: '14px' }}>{totalCount} Colors already taken</span> ) : ( <span className="animate-pulse" style={{ fontWeight: '700', fontSize: '14px', color: '#94a3b8' }}>Loading Claims...</span> )}
           </div>
           
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 24px', backgroundColor: '#fbbf24', borderRadius: '50px', boxShadow: '0 4px 20px rgba(251, 191, 36, 0.4)', transform: 'rotate(-3deg)' }}>
