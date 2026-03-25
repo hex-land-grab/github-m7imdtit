@@ -107,7 +107,8 @@ function OwnAColorContent() {
       {isSuccess && tempClaim && (
         <div style={{ position: 'fixed', top: '20px', zIndex: 100, backgroundColor: 'rgba(34, 197, 94, 0.9)', backdropFilter: 'blur(10px)', padding: '12px 24px', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.2)', animation: 'slideDown 0.5s ease-out' }}>
           <CheckCircle size={20} color="#fff" />
-          <span style={{ fontWeight: '700', fontSize: '14px' }}>Ownership Secured!</span>
+          {/* ✅ CSERE 1: "Ownership Secured" helyett -> "Claim Secured" */}
+          <span style={{ fontWeight: '700', fontSize: '14px' }}>Claim Secured!</span>
           <button 
             onClick={() => {
               const shareText = `I just claimed #${tempClaim} in the @OwnAColor registry. Yes, this is a real internet thing. 🎨`;
@@ -142,7 +143,8 @@ function OwnAColorContent() {
         <p style={{ fontSize: '1.2rem', color: '#e2e8f0', maxWidth: '640px', margin: '0 auto 15px auto', lineHeight: '1.6', fontWeight: '500' }}>Pick a color, add your name, and secure a one-of-one claim in the Own a Color registry. Includes a shareable digital certificate.</p>
         
         <div style={{ display: 'inline-block', backgroundColor: 'rgba(0,0,0,0.3)', padding: '6px 16px', borderRadius: '20px', marginBottom: '25px', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <span style={{ fontSize: '13px', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '6px' }}><Info size={14} /> A digital novelty registry • Not legal property rights</span>
+          {/* ✅ CSERE 2: Biztonságosabb jogi disclaimer */}
+          <span style={{ fontSize: '13px', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '6px' }}><Info size={14} /> Public digital registry listing • No legal ownership or IP rights</span>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
@@ -218,7 +220,8 @@ function OwnAColorContent() {
 
       {/* LEDGER SECTION */}
       <div style={{ marginTop: '80px', width: '100%', maxWidth: '1000px', marginBottom: '60px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', padding: '0 20px' }}><div style={{display: 'flex', alignItems: 'center', gap: '10px'}}><Globe size={20} color="#fff"/><h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>OWNERSHIP LEDGER</h3></div><span style={{ color: '#4ade80', fontSize: '12px', fontFamily: 'monospace', fontWeight: '700', border: '1px solid #4ade80', padding: '4px 8px', borderRadius: '4px' }}>● LIVE FEED</span></div>
+        {/* ✅ CSERE 3: "OWNERSHIP LEDGER" helyett -> "PUBLIC COLOR REGISTRY" */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', padding: '0 20px' }}><div style={{display: 'flex', alignItems: 'center', gap: '10px'}}><Globe size={20} color="#fff"/><h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>PUBLIC COLOR REGISTRY</h3></div><span style={{ color: '#4ade80', fontSize: '12px', fontFamily: 'monospace', fontWeight: '700', border: '1px solid #4ade80', padding: '4px 8px', borderRadius: '4px' }}>● LIVE FEED</span></div>
         
         {/* 🚀 ÚJ: "JUST CLAIMED" HERO BANNER (Legutóbbi vásárlás kiemelése) */}
         {recentSales.length > 0 && (
