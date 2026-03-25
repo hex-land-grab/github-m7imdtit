@@ -155,7 +155,7 @@ export default async function ColorCertificatePage(props: { params: Promise<{ he
             {isOwned ? (
               <div style={{ textAlign: 'center' }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(74, 222, 128, 0.1)', border: '1px solid #4ade80', color: '#4ade80', padding: '6px 16px', borderRadius: '50px', fontSize: '14px', fontWeight: '700', marginBottom: '24px' }}>
-                  <ShieldCheck size={18} /> OFFICIAL REGISTRY RECORD
+                  <ShieldCheck size={18} /> VERIFIED REGISTRY RECORD
                 </div>
                 <h2 style={{ fontSize: '14px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px' }}>Owned By</h2>
                 <p style={{ fontSize: '32px', fontWeight: '800', color: '#fff', marginBottom: '8px' }}>{colorData.owner_name}</p>
@@ -179,7 +179,7 @@ export default async function ColorCertificatePage(props: { params: Promise<{ he
 
             <div style={{ marginTop: '24px' }}>
               <a href={twitterIntentUrl} target="_blank" rel="noopener noreferrer" className="hover:bg-white/10 transition-colors" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', backgroundColor: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '16px', borderRadius: '16px', color: '#fff', textDecoration: 'none', fontWeight: '600' }}>
-                <Twitter size={20} /> {isOwned ? 'Share Ownership' : 'Tell a Friend'}
+                <Twitter size={20} /> {isOwned ? 'Share Claim' : 'Tell a Friend'}
               </a>
             </div>
           </div>
