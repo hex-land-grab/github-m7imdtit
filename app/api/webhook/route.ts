@@ -41,54 +41,60 @@ export async function POST(req: Request) {
       payload = Object.fromEntries(formData);
     }
 
-    // --- 🛡️ 3. TERMÉKSZŰRŐ PAJZS (Kritikus a globális Pinghez) ---
-    // Ha a termék nem az "Own a Color", csendben megállunk, de 200-at válaszolunk
+    // --- 🛡️ 3. IZOLÁLT TESZT PING KEZELÉS ---
+    const isTest = payload['test'] === true || payload['test'] === 'true';
+    if (isTest && !(payload['SelectedHex'] || payload['custom_fields[SelectedHex]'])) {
+        console.log('✅ TEST PING: Gumroad test connection successful.');
+        return NextResponse.json({ status: 'success', message: 'Test ping received' }, { status: 200 });
+    }
+
+    // --- 🛡️ 4. SZIGORÚ TERMÉKSZŰRŐ PAJZS ---
     const productName = (payload['product_name'] || '').toString();
-    if (productName !== "Own a Color" && !payload['test']) {
+    if (productName !== "Own a Color") {
       console.log(`✅ IDLE: Ignored sale for other product: ${productName}`);
       return NextResponse.json({ status: 'ignored', message: 'Not target product' }, { status: 200 });
     }
 
-    console.log('✅ Gumroad Webhook Payload Verified & Received for Own a Color');
-
-    // --- 4. ADATOK KINYERÉSE ---
-    let hexRaw = (payload['SelectedHex'] || payload['custom_fields[SelectedHex]'] || payload['Hex'] || '').toString().trim();
-    let ownerName = (payload['Nickname'] || payload['custom_fields[Nickname]'] || 'Anonymous').toString().trim();
-    let city = (payload['City'] || payload['custom_fields[City]'] || payload['Your City'] || payload['custom_fields[Your City]'] || '').toString().trim();
     let saleId = (payload['sale_id'] || '').toString().trim();
-
-    // Teszt ping kezelése
-    if (!hexRaw && payload['test']) {
-        return NextResponse.json({ status: 'success', message: 'Test ping received' }, { status: 200 });
+    if (!saleId) {
+      console.error('🚨 SECURITY ALERT: Missing sale_id in live webhook!');
+      return NextResponse.json({ error: 'Missing sale_id' }, { status: 400 });
     }
+
+    console.log(`✅ Gumroad Webhook Payload Verified for Sale: ${saleId}`);
+
+    // --- 5. ADATOK KINYERÉSE ÉS DURVA LEVÁGÁSA (XSS VÉDELEM) ---
+    let hexRaw = (payload['SelectedHex'] || payload['custom_fields[SelectedHex]'] || payload['Hex'] || '').toString().trim();
+    let ownerName = (payload['Nickname'] || payload['custom_fields[Nickname]'] || 'Anonymous').toString().trim().substring(0, 32); // Max 32 karakter
+    let city = (payload['City'] || payload['custom_fields[City]'] || payload['Your City'] || payload['custom_fields[Your City]'] || '').toString().trim().substring(0, 48); // Max 48 karakter
 
     if (!hexRaw) {
       return NextResponse.json({ error: 'Missing Hex code' }, { status: 400 });
     }
 
-    // Hex normalizálás
+    // --- 🛡️ 6. SZIGORÚ HEX REGEX VALIDÁCIÓ ---
     let hexNormalized = hexRaw.toUpperCase();
     if (!hexNormalized.startsWith('#')) hexNormalized = `#${hexNormalized}`;
-    if (hexNormalized.length !== 7) {
+    
+    if (!/^#[0-9A-F]{6}$/.test(hexNormalized)) {
+      console.error(`🚨 SECURITY ALERT: Invalid Hex format injected: ${hexNormalized}`);
       return NextResponse.json({ error: 'Invalid Hex format' }, { status: 400 });
     }
 
-    // --- 🛡️ 5. IDEMPOTENCIA (Dupla hívás szűrése) ---
-    if (saleId) {
-      const { error: ledgerError } = await supabase
-        .from('webhook_events')
-        .insert([{ sale_id: saleId, hex_code: hexNormalized }]);
+    // --- 🛡️ 7. IDEMPOTENCIA (Dupla hívás szűrése) ---
+    const { error: ledgerError } = await supabase
+      .from('webhook_events')
+      .insert([{ sale_id: saleId, hex_code: hexNormalized }]);
 
-      if (ledgerError) {
-        if (ledgerError.code === '23505') {
-          console.log(`✅ IDEMPOTENCY: Webhook for sale ${saleId} already processed.`);
-          return NextResponse.json({ status: 'success', message: 'Already processed' }, { status: 200 });
-        }
-        throw ledgerError;
+    if (ledgerError) {
+      if (ledgerError.code === '23505') {
+        console.log(`✅ IDEMPOTENCY: Webhook for sale ${saleId} already processed.`);
+        return NextResponse.json({ status: 'success', message: 'Already processed' }, { status: 200 });
       }
+      throw ledgerError;
     }
 
-    // --- 6. MODERÁCIÓ ---
+    // --- 8. MODERÁCIÓ ---
     if (containsBlockedWord(ownerName)) {
       console.log(`🚨 MODERATION: Blocked name "${ownerName}"`);
       ownerName = 'Anonymous'; 
@@ -99,12 +105,15 @@ export async function POST(req: Request) {
     }
     if (ownerName === '') ownerName = 'Anonymous';
 
-    // --- 7. BIZTONSÁGOS ÍRÁS AZ ADATBÁZISBA ---
+    // --- 🛡️ 9. BIZTONSÁGOS ÍRÁS AZ ADATBÁZISBA (ROLLBACK VÉDELEMMEL) ---
     const { error } = await supabase
       .from('sold_colors')
       .insert([{ hex_code: hexNormalized, owner_name: ownerName, city: city }]);
 
     if (error) {
+      // Ha a szín írása elbukik, letöröljük az eseményt is, hogy a Gumroad újra tudja próbálni! (Szegény ember tranzakciója)
+      await supabase.from('webhook_events').delete().eq('sale_id', saleId);
+
       if (error.code === '23505') {
         console.error('🚨 RACE CONDITION ALERT: Color already owned!', { hex: hexNormalized, sale_id: saleId });
         return NextResponse.json({ status: 'already_owned_refund_required' }, { status: 200 });
@@ -115,7 +124,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ status: 'success', hex: hexNormalized }, { status: 200 });
 
   } catch (err: any) {
-    console.error('Webhook Error:', err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error('Webhook Error Details:', err.message);
+    // Kliens felé csak egy általános hibaüzenet megy, nem szivárogtatunk adatbázis infót!
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
