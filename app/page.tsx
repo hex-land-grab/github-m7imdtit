@@ -5,7 +5,6 @@ import { Search, Loader2, Twitter, ExternalLink, Tag, Shuffle, Globe, Info, Trop
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
-// 🚀 JAVÍTÁS: A Vercel build-crash elkerülése formátum-helyes fallback URL-lel
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 const G_LINK = "https://soloflowsystems.gumroad.com/l/zlqosf"; 
@@ -37,7 +36,6 @@ function OwnAColorContent() {
       };
       document.body.appendChild(script);
 
-      // Picit meghosszabbítjuk az időt, hogy legyen ideje megosztani Twitteren
       const timer = setTimeout(() => {
         router.replace('/', { scroll: false });
         localStorage.removeItem('pendingHex');
@@ -47,7 +45,7 @@ function OwnAColorContent() {
     }
   }, [isSuccess, router]);
 
- useEffect(() => {
+  useEffect(() => {
     const fetchSales = async () => {
       const { data, count } = await supabase.from('sold_colors').select('*', { count: 'exact' }).order('created_at', { ascending: false }).limit(50);
       if (data) setRecentSales(data);
@@ -58,20 +56,44 @@ function OwnAColorContent() {
     fetchSales();
   }, []);
 
+  // --- 🛡️ ÚJ DEBOUNCE LOGIKA ---
+  // A gépelés azonnali, nem akad a felület
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    const clean = val.replace(/[^0-9A-F]/gi, '').toUpperCase().slice(0, 6);
+    setHex(clean);
+    
+    if (clean.length !== 6) {
+      setStatus('idle');
+    }
+  };
+
+  // Ez a "figyelő" vár fél másodpercet (500ms) a gépelés befejezése után, mielőtt adatbázist hív
+  useEffect(() => {
+    if (hex.length !== 6) return;
+
+    setStatus('checking');
+    
+    const timer = setTimeout(async () => {
+      const normalizedHex = `#${hex}`;
+      // 💡 Optimalizálás: Csak a hex_code-ot kérjük le a check-hez, nem a teljes sort (select('*') helyett select('hex_code'))
+      const { data } = await supabase.from('sold_colors').select('hex_code').eq('hex_code', normalizedHex).maybeSingle();
+      
+      if (data) { 
+        setStatus('taken'); 
+      } else { 
+        setStatus('available'); 
+      }
+    }, 500); // Késleltetés hossza milliszekundumban
+
+    // Ha a felhasználó 500ms-en belül újra gépel, töröljük a régi időzítőt (Debounce)
+    return () => clearTimeout(timer);
+  }, [hex]);
+
   const generateRandomColor = () => {
     const randomHex = Math.floor(Math.random()*16777215).toString(16).toUpperCase().padStart(6, '0');
     setHex(randomHex);
-    checkColor(randomHex);
-  }
-
-  async function checkColor(val: string) {
-    const clean = val.replace(/[^0-9A-F]/gi, '').toUpperCase().slice(0, 6);
-    setHex(clean);
-    if (clean.length !== 6) { setStatus('idle'); return; }
-    setStatus('checking');
-    const normalizedHex = `#${clean}`;
-    const { data } = await supabase.from('sold_colors').select('*').eq('hex_code', normalizedHex).maybeSingle();
-    if (data) { setStatus('taken'); } else { setStatus('available'); }
+    // Nem kell ide checkColor, a fenti useEffect automatikusan észreveszi a változást és leellenőrzi!
   }
 
   const getGumroadUrl = () => {
@@ -79,12 +101,10 @@ function OwnAColorContent() {
     return `${G_LINK}?${params.toString()}`;
   }
 
-  // --- 🚀 ÚJ VIRAL LOOP: Intelligens megosztó logika ---
   const shareOnX = () => {
     let text = `I just found that #${hex} is AVAILABLE on Own a Color! Who's gonna own it?`;
     let shareUrl = 'https://own-a-color.vercel.app';
 
-    // Ha a felhasználó sikeres vásárlás után van, és a saját színét osztja meg
     if (isSuccess && (tempClaim === hex || localStorage.getItem('pendingHex') === hex)) {
       text = `I just claimed #${hex} in the @OwnAColor registry. Yes, this is a real internet thing. 🎨`;
       shareUrl = `https://own-a-color.vercel.app/color/${hex}`;
@@ -103,11 +123,9 @@ function OwnAColorContent() {
   return (
     <div style={{ minHeight: '100vh', color: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '60px 20px', position: 'relative', overflowX: 'hidden' }}>
       
-      {/* --- 🚀 BŐVÍTETT SUCCESS TOAST: TWITTER GOMBBAL --- */}
       {isSuccess && tempClaim && (
         <div style={{ position: 'fixed', top: '20px', zIndex: 100, backgroundColor: 'rgba(34, 197, 94, 0.9)', backdropFilter: 'blur(10px)', padding: '12px 24px', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.2)', animation: 'slideDown 0.5s ease-out' }}>
           <CheckCircle size={20} color="#fff" />
-          {/* ✅ CSERE 1: "Ownership Secured" helyett -> "Claim Secured" */}
           <span style={{ fontWeight: '700', fontSize: '14px' }}>Claim Secured!</span>
           <button 
             onClick={() => {
@@ -143,7 +161,6 @@ function OwnAColorContent() {
         <p style={{ fontSize: '1.2rem', color: '#e2e8f0', maxWidth: '640px', margin: '0 auto 15px auto', lineHeight: '1.6', fontWeight: '500' }}>Pick a color, add your name, and secure a one-of-one claim in the Own a Color registry. Includes a shareable digital certificate.</p>
         
         <div style={{ display: 'inline-block', backgroundColor: 'rgba(0,0,0,0.3)', padding: '6px 16px', borderRadius: '20px', marginBottom: '25px', border: '1px solid rgba(255,255,255,0.1)' }}>
-          {/* ✅ CSERE 2: Biztonságosabb jogi disclaimer */}
           <span style={{ fontSize: '13px', color: '#cbd5e1', display: 'flex', alignItems: 'center', gap: '6px' }}><Info size={14} /> Public digital registry listing • No legal ownership or IP rights</span>
         </div>
 
@@ -167,12 +184,12 @@ function OwnAColorContent() {
         <div style={{ position: 'relative', marginBottom: '20px', display: 'flex', gap: '10px' }}>
           <div style={{ position: 'relative', flexGrow: 1 }}>
             <Search style={{ position: 'absolute', left: '20px', top: '22px', color: '#cbd5e1', width: '20px', height: '20px' }} />
-            <input type="text" value={hex} onChange={(e) => checkColor(e.target.value)} placeholder="Pick a color (e.g. FF0055)" style={{ width: '100%', backgroundColor: 'rgba(15, 23, 42, 0.6)', border: `2px solid ${status === 'available' ? '#4ade80' : 'rgba(255,255,255,0.1)'}`, padding: '18px 18px 18px 50px', fontSize: '20px', color: '#fff', borderRadius: '16px', outline: 'none', transition: 'all 0.3s ease', fontWeight: '700', letterSpacing: '2px', boxShadow: status === 'available' ? '0 0 30px rgba(74, 222, 128, 0.4)' : 'none' }} />
+            {/* 🛡️ onChange esemény módosítva az új Debounce logikára */}
+            <input type="text" value={hex} onChange={handleInputChange} placeholder="Pick a color (e.g. FF0055)" style={{ width: '100%', backgroundColor: 'rgba(15, 23, 42, 0.6)', border: `2px solid ${status === 'available' ? '#4ade80' : 'rgba(255,255,255,0.1)'}`, padding: '18px 18px 18px 50px', fontSize: '20px', color: '#fff', borderRadius: '16px', outline: 'none', transition: 'all 0.3s ease', fontWeight: '700', letterSpacing: '2px', boxShadow: status === 'available' ? '0 0 30px rgba(74, 222, 128, 0.4)' : 'none' }} />
           </div>
           <button onClick={generateRandomColor} title="Surprise Me (Random Color)" style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '16px', width: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><Shuffle size={24} color="#fff" /></button>
         </div>
 
-        {/* 🚀 ÚJ: USE-CASE CHIPS */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '24px' }}>
           {['🎁 Anniversary gift', '🤡 Inside joke', '💅 Brand flex', '👶 Baby’s first color', '🎮 Gamer tag', '🏆 Internet trophy'].map(chip => (
             <button key={chip} onClick={generateRandomColor} style={{ padding: '6px 12px', backgroundColor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '50px', fontSize: '12px', color: '#cbd5e1', cursor: 'pointer', transition: 'all 0.2s', fontWeight: '500' }} onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.color = '#fff'; }} onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#cbd5e1'; }}>
@@ -220,10 +237,8 @@ function OwnAColorContent() {
 
       {/* LEDGER SECTION */}
       <div style={{ marginTop: '80px', width: '100%', maxWidth: '1000px', marginBottom: '60px' }}>
-        {/* ✅ CSERE 3: "OWNERSHIP LEDGER" helyett -> "PUBLIC COLOR REGISTRY" */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '30px', padding: '0 20px' }}><div style={{display: 'flex', alignItems: 'center', gap: '10px'}}><Globe size={20} color="#fff"/><h3 style={{ color: '#fff', fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-1px' }}>PUBLIC COLOR REGISTRY</h3></div><span style={{ color: '#4ade80', fontSize: '12px', fontFamily: 'monospace', fontWeight: '700', border: '1px solid #4ade80', padding: '4px 8px', borderRadius: '4px' }}>● LIVE FEED</span></div>
         
-        {/* 🚀 ÚJ: "JUST CLAIMED" HERO BANNER (Legutóbbi vásárlás kiemelése) */}
         {recentSales.length > 0 && (
           <div style={{ padding: '0 20px', marginBottom: '32px' }}>
             <div style={{
@@ -237,20 +252,17 @@ function OwnAColorContent() {
               flexDirection: 'column',
               backdropFilter: 'blur(10px)'
             }}>
-              {/* Animált "LIVE" Badge */}
               <div style={{ position: 'absolute', top: '16px', right: '16px', zIndex: 10, backgroundColor: 'rgba(0,0,0,0.6)', padding: '6px 12px', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid rgba(255,255,255,0.2)' }}>
                 <span className="animate-pulse" style={{ width: '8px', height: '8px', backgroundColor: '#4ade80', borderRadius: '50%', display: 'inline-block' }}></span>
                 <span style={{ fontSize: '10px', fontWeight: 'bold', letterSpacing: '1px', color: '#fff' }}>JUST CLAIMED</span>
               </div>
 
-              {/* Hatalmas Színblokk */}
               <div style={{
                 height: '180px',
                 backgroundColor: recentSales[0].hex_code.startsWith('#') ? recentSales[0].hex_code : '#' + recentSales[0].hex_code,
                 width: '100%'
               }}></div>
 
-              {/* Tulajdonos Adatai */}
               <div style={{ padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '16px' }}>
                 <div>
                   <p style={{ color: '#fff', fontSize: '36px', fontWeight: '900', fontFamily: 'monospace', lineHeight: '1', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
