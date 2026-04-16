@@ -53,7 +53,7 @@ export default function TermsPage() {
           To maintain security and verify your purchase status, <strong style={{ color: '#fff' }}>all support inquiries, including display name modifications or verified technical failure reports, must be sent to our official support channel:</strong>
           <br /><br />
           <a href="mailto:contact.ownacolor@gmail.com" style={{ color: '#4ade80', textDecoration: 'none', fontWeight: 'bold', fontSize: '16px' }}>
-            ✉️ contact.ownacolor@gmail.com
+            ✉️ contact@yourdomain.com
           </a>
           <br /><br />
           <span style={{ fontSize: '14px', color: '#94a3b8' }}>Please ensure you email us from the address you used for your purchase, or attach your official Gumroad receipt to help us identify your Claim ID.</span>
