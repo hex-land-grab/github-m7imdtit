@@ -7,7 +7,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 
 const S_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const S_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
-const G_LINK = "https://soloflowsystems.gumroad.com/l/zlqosf"; 
+const G_LINK = "REPLACE_WITH_YOUR_GUMROAD_LINK";
 
 const supabase = createClient(S_URL, S_KEY);
 
