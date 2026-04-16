@@ -59,8 +59,8 @@ export default async function ColorCertificatePage(props: { params: Promise<{ he
   }
 
   const supabase = createClient(S_URL, S_KEY);
-  const G_LINK = "https://soloflowsystems.gumroad.com/l/zlqosf";
-
+const G_LINK = "REPLACE_WITH_YOUR_GUMROAD_LINK";
+  
   // Ha érvénytelen a formátum
   if (rawHex.length !== 6) {
     return (
